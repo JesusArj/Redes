@@ -1,3 +1,5 @@
+#ifndef
+#define REFRANES
 
 #include <string>
 #include <time.h>
@@ -82,3 +84,5 @@ int main(){
     cout << refranOculto << " puntos "<< puntos <<endl;
     return 0;
 }
+
+#endif
