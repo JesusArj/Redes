@@ -22,4 +22,7 @@ bool rellenarConsonantes(string &refranOculto, string refran, char consonante, i
 
 bool comprarVocales(string &refranOculto, string refran, char vocal, int &puntos );
 
+bool isVowel(char vocal);
+
+bool isConsonant(char consonant);
 #endif

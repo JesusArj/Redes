@@ -1,19 +1,19 @@
 #include "mensajesCliente.h"
 string mandarUsuario(string usuario)
 {
-    string cadena = ("USUARIO " + usuario);
+    string cadena = ("USUARIO " + usuario + "\n");
     cout << cadena <<endl; 
     return cadena; 
 }
 string mandarPasswd(string passwd)
 {
-    string cadena = ("PASSWORD " + passwd);
+    string cadena = ("PASSWORD " + passwd + "\n");
     cout << cadena <<endl; 
     return cadena; 
 }
 string mandarRegistro(string usuario, string contrasena)
 {
-    string cadena = ("REGISTRO -u " + usuario + " -p "+contrasena);
+    string cadena = ("REGISTRO -u " + usuario + " -p "+contrasena + "\n");
     cout << cadena <<endl; 
     return cadena; 
 }
@@ -23,21 +23,23 @@ string iniciarPartida()
 }
 string introducirVocal(char vocal)
 {
-    return ("VOCAL "+vocal); 
+    string voc(1,vocal);
+    return ("VOCAL " + voc + "\n"); 
 }
 string introducirConsonante(char consonante)
 {
-    return ("CONSONANTE "+consonante); 
+    string con(1,consonante);
+    return ("CONSONANTE " + con + "\n"); 
 }
 string introducirPuntuacion()
 {
-    return "PUNTUACION"; 
+    return "PUNTUACION\n"; 
 }
 string resolverFrase(string frase)
 {
-    return ("RESOLVER " + frase); 
+    return ("RESOLVER " + frase + "\n"); 
 }
 string salir()
 {
-    return "SALIR"; 
+    return "SALIR\n"; 
 }
