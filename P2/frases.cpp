@@ -1,4 +1,4 @@
-#ifndef
+#ifndef REFRANES
 #define REFRANES
 
 #include <string>
