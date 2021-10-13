@@ -1,18 +1,4 @@
-#ifndef REFRANES
-#define REFRANES
-
-#include <string>
-#include <time.h>
-#include <stdio.h>
-#include <iostream>
-#include <ctype.h>
-#include <algorithm>
-
-using namespace std;
-
-string Refran[] = {
-#include "refranes"
-} ;
+#include "frases.h"
 
 string pickRefran(){
     srand(time(NULL));
@@ -42,10 +28,6 @@ bool rellenarConsonantes(string &refranOculto, string refran, char consonante, i
         if(refran[i] == consonante){
             refranOculto[i]=consonante;
             puntos += 50;
-        }else if(refran[i]==space){
-            refranOculto[i]=space;
-        }else if (refran[i]==end){
-            refranOculto[i]==end;
         }
     }
     if(puntosOld != puntos)
@@ -62,27 +44,7 @@ bool comprarVocales(string &refranOculto, string refran, char vocal, int &puntos
         if(refran[i] == vocal){
             refranOculto[i]=vocal;
             cambio = true;
-        }else if(refran[i]==space){
-            refranOculto[i]=space;
-        }else if (refran[i]==end){
-            refranOculto[i]==end;
         }
     }
     return cambio;
 }
-
-int main(){
-    int puntos = 500;
-    string refran = pickRefran();
-    cout << refran <<endl;
-    string refranOculto = getRefranOculto(refran);
-    cout << refranOculto<<endl;
-    char l = 'L';
-    char a = 'A';
-    rellenarConsonantes(refranOculto, refran, l , puntos );
-    comprarVocales(refranOculto,refran,a,puntos);
-    cout << refranOculto << " puntos "<< puntos <<endl;
-    return 0;
-}
-
-#endif
