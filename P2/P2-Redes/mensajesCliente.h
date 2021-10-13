@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <string>
 #include <iostream>
+#include <algorithm>
 #ifndef MENSAJES_CLIENTE
 using namespace std; 
 

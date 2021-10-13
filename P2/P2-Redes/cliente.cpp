@@ -14,13 +14,14 @@
 
 using namespace std;
 
-int main ( )
+int main (int argc, char* argv[])
 {
   
 	/*---------------------------------------------------- 
 		Descriptor del socket y buffer de datos                
 	-----------------------------------------------------*/
 	int sd;
+	char* ip = argv[1];
 	struct sockaddr_in sockname;
 	char bufferIn[250];
 	char bufferOut[350];
@@ -49,7 +50,7 @@ int main ( )
 	-------------------------------------------------------------------*/
 	sockname.sin_family = AF_INET;
 	sockname.sin_port = htons(2000);
-	sockname.sin_addr.s_addr =  inet_addr("127.0.0.12");
+	sockname.sin_addr.s_addr =  inet_addr(ip);
 
 	/* ------------------------------------------------------------------
 		Se solicita la conexión con el servidor
