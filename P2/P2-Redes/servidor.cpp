@@ -1,3 +1,6 @@
+#ifndef SERVER
+#define SERVER
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -5,11 +8,13 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
-#include<signal.h>
+#include <signal.h>
 #include <unistd.h>
 #include <time.h>
 #include <arpa/inet.h>
-
+#include "usuario.h"
+#include "mensajesCliente.h"
+#include "frases.h"
 
 #define MSG_SIZE 250
 #define MAX_CLIENTS 30
@@ -250,3 +255,5 @@ void manejador (int signum){
     
     //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
 }
+
+#endif
