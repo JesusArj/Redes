@@ -1,22 +1,18 @@
 #include "mensajesCliente.h"
 string mandarUsuario(string usuario)
 {
-    transform(usuario.begin(), usuario.end(), usuario.begin(), ::toupper);
     string cadena = ("USUARIO " + usuario + "\n");
     cout << cadena <<endl; 
     return cadena; 
 }
 string mandarPasswd(string passwd)
 {
-    transform(passwd.begin(), passwd.end(), passwd.begin(), ::toupper);
     string cadena = ("PASSWORD " + passwd + "\n");
     cout << cadena <<endl; 
     return cadena; 
 }
 string mandarRegistro(string usuario, string passwd)
 {
-    transform(usuario.begin(), usuario.end(), usuario.begin(), ::toupper);
-    transform(passwd.begin(), passwd.end(), passwd.begin(), ::toupper);
     string cadena = ("REGISTRO -u " + usuario + " -p "+passwd + "\n");
     cout << cadena <<endl; 
     return cadena; 
