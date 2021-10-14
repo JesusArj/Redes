@@ -2,19 +2,16 @@
 string mandarUsuario(string usuario)
 {
     string cadena = ("USUARIO " + usuario + "\n");
-    cout << cadena <<endl; 
     return cadena; 
 }
 string mandarPasswd(string passwd)
 {
     string cadena = ("PASSWORD " + passwd + "\n");
-    cout << cadena <<endl; 
     return cadena; 
 }
 string mandarRegistro(string usuario, string passwd)
 {
     string cadena = ("REGISTRO -u " + usuario + " -p "+passwd + "\n");
-    cout << cadena <<endl; 
     return cadena; 
 }
 string iniciarPartida()
