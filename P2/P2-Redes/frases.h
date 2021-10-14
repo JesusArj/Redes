@@ -16,7 +16,7 @@ string Refran[] = {
 
 string pickRefran();
 
-string getRefranOculto(string refran);
+string ocultarRefran(string refran);
 
 bool rellenarConsonantes(string &refranOculto, string refran, char consonante, int &puntos );
 

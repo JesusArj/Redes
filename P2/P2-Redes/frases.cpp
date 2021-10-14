@@ -6,7 +6,7 @@ string pickRefran(){
     return refran;
 }
 
-string getRefranOculto(string refran){
+string ocultarRefran(string refran){
     string refranOculto(refran);
     char aux = '_', space = ' ', end = '\0';
     for(int i=0; i<refran.size(); i++){

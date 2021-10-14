@@ -1,5 +1,13 @@
 #include "partida.h"
 
+partida::partida(int sd1, int sd2,string j1, string j2){
+    setSockets(sd1,sd2);
+    setJugadores(j1,j2);
+    setRefranResuelto(pickRefran());
+    setRefranOculto(ocultarRefran(this->refranResuelto));
+    setTurno(0);
+}
+
 int partida::getTurno(){
     return turno;
 }

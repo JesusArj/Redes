@@ -2,6 +2,7 @@
 #define PARTIDA
 
 #include <string>
+#include "frases.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ class partida {
         partida();
         ~partida();
 
-        partida(int sd1, int sd2);
+        partida(int sd1, int sd2, string j1, string j2);
         int getTurno();
         string getRefranResuelto();
         string getRefranOculto();
