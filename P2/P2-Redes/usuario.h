@@ -12,15 +12,23 @@
 
 using namespace std;
 
-class Usuario{
+class usuario{
     private:
-        string Username;
-        string Passwd;
+        string username;
+        string passwd;
         int puntos;
         int estado;
         int sd;
 
     public:
+
+        usuario();
+        ~usuario();
+    
+        usuario(string username, string passwd){
+            setUsername(username);
+            setPasswd(passwd);
+        }
         string getUsername();
         string getPasswd();
         int getPuntos();
