@@ -10,12 +10,13 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <list>
 #include <time.h>
 #include <arpa/inet.h>
 #include "usuario.h"
 #include "mensajesCliente.h"
 #include "frases.h"
-
+#include "partida.h"
 #define MSG_SIZE 250
 #define MAX_CLIENTS 30
 #define MAX_GAMES 10
@@ -34,20 +35,22 @@ int main ( )
 	/*---------------------------------------------------- 
 		Descriptor del socket y buffer de datos                
 	-----------------------------------------------------*/
-	int sd, new_sd;
-	struct sockaddr_in sockname, from;
-	char buffer[MSG_SIZE];
-	socklen_t from_len;
-    	fd_set readfds, auxfds;
-   	 int salida;
-   	 int arrayClientes[MAX_CLIENTS];
-    	int numClientes = 0;
-   	 //contadores
-    	int i,j,k;
-	int recibidos;
-   	 char identificador[MSG_SIZE];
-    
-    	int on, ret;
+    int sd, new_sd;
+    struct sockaddr_in sockname, from;
+    char buffer[MSG_SIZE];
+    socklen_t from_len;
+    fd_set readfds, auxfds;
+    int salida;
+    int arrayClientes[MAX_CLIENTS];
+    int numClientes = 0;
+    vector<usuario> usuariosVec;
+    vector<partida> partidasVec;
+    list<usuario> enEspera; 
+    //contadores
+    int i,j,k;
+    int recibidos;
+    char identificador[MSG_SIZE];
+    int on, ret;
 
     
     
@@ -136,17 +139,12 @@ int main ( )
                                     arrayClientes[numClientes] = new_sd;
                                     numClientes++;
                                     FD_SET(new_sd,&readfds);
+                                    usuario u(new_sd,0);
+                                    usuariosVec.push_back(u);
                                 
-                                    strcpy(buffer, "Bienvenido al chat\n");
+                                    strcpy(buffer, "Bienvenido al sistema\n");
                                 
                                     send(new_sd,buffer,sizeof(buffer),0);
-                                
-                                    for(j=0; j<(numClientes-1);j++){
-                                    
-                                        bzero(buffer,sizeof(buffer));
-                                        sprintf(buffer, "Nuevo Cliente conectado: %d\n",new_sd);
-                                        send(arrayClientes[j],buffer,sizeof(buffer),0);
-                                    }
                                 }
                                 else
                                 {
@@ -169,8 +167,8 @@ int main ( )
                             if(strcmp(buffer,"SALIR\n") == 0){
                              
                                 for (j = 0; j < numClientes; j++){
-						   bzero(buffer, sizeof(buffer));
-						   strcpy(buffer,"Desconexión servidor\n"); 
+                                    bzero(buffer, sizeof(buffer));
+                                    strcpy(buffer,"Desconexión servidor\n"); 
                                     send(arrayClientes[j],buffer , sizeof(buffer),0);
                                     close(arrayClientes[j]);
                                     FD_CLR(arrayClientes[j],&readfds);
@@ -186,10 +184,127 @@ int main ( )
                         else{
                             bzero(buffer,sizeof(buffer));
                             recibidos = recv(i,buffer,sizeof(buffer),0);
+                        
                             if(recibidos > 0){
-                                if(strcmp(buffer,"SALIR\n") == 0){
+                                //comprobaciones                                
+                                string mensajeRec(buffer);
+
+                                if(mensajeRec.find("USUARIO ")==0)
+                                {
+                                    string userName = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            if(user.getEstado()==0){
+                                                if(user.userExist(userName)){
+                                                user.setUsername(userName);
+                                                user.setEstado(user.getEstado()+1);
+                                                }
+                                            }
+                                            else{
+                                                string wrongName = "-Err. Usuario no encontrado\n"; 
+                                            }
+                                           
+                                        }
+                                        else{
+                                            string wrongEstado = "Accion no permitida\n";
+                                        }
+                                    }
+    
+                                }else if(mensajeRec.find("PASSWORD ")==0)
+                                {
+                                    string passwd = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                     for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            if(user.getEstado()==1)
+                                            {
+                                                if(user.login(user.getUsername(), passwd))
+                                                {
+                                                    user.setPasswd(passwd);
+                                                    user.setEstado(user.getEstado()+1);
+                                                }
+                                                else
+                                                {
+                                                    string wrongPasswd = "Contrasena incorrecta\n"; 
+                                                }
+                                            }
+                                            else
+                                            {
+                                                string wrongEstado = "Accion no permitida\n";
+                                            }    
+                                        }
+                                    }
+    
+                                }else if(mensajeRec.find("REGISTER -u ")==0){
+                                    string username = mensajeRec.substr(mensajeRec.find(" -u "),mensajeRec.find(mensajeRec.find(" -p ")));
+                                    string passwd = mensajeRec.substr(mensajeRec.find(" -p "),mensajeRec.find(mensajeRec.find("\n")));
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            if(user.getEstado()==0)
+                                            {
+                                                if(user.registerUser(username, passwd))
+                                                {
+                                                    user.setUsername(username);
+                                                    user.setPasswd(passwd);
+                                                    user.setEstado(user.getEstado()+2);
+                                                }
+                                                else
+                                                {
+                                                    string wrongPasswd = "Error en el registro\n"; 
+                                                }
+                                            }
+                                            else
+                                            {
+                                                string wrongEstado = "Accion no permitida\n";
+                                            }    
+                                        }
+                                    }
+                                }else if(mensajeRec.find("INICIAR-PARTIDA")==0){
+                                    int cont = 0;
+                                    vector<int> enEspera;
+
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd() == i){
+                                            user.setEstado(user.getEstado()+1);
+                                        }
+                                        if(user.getEstado() == 4){
+                                            cont++;
+                                            enEspera.push_back(user.getSd());
+                                        }
+                                    }
+                                
+                                }else if(mensajeRec.find("CONSONANTE ")==0){
+                                    string consonante = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                    if(consonante.size()==1){
+                                        char cons = (char)consonante[0];
+                                        if(isConsonant(cons)){
+                                            for(usuario user : usuariosVec){
+                                            if(user.getSd()==i){
+                                               
+
+
+
+                                            }
+                                        }
+                                            
+                                        }
+                                    }
+                                    
+                                    
+                                }else if(mensajeRec.find("VOCAL ")==0){
+                                    
+                                }else if(mensajeRec.find("RESOLVER ")==0){
+
+                                }else if(mensajeRec.find("PUNTUACION")==0){
+
+                                }
+                                else if(mensajeRec.find("SALIR") == 0){
                                     salirCliente(i,&readfds,&numClientes,arrayClientes);
                                 }
+                                else {
+                                    string wrongFormat = "-Err. fallo accion";
+                                }
+                                
+                                /*
                                 else{
                                     
                                     sprintf(identificador,"<%d>: %s",i,buffer);
@@ -200,7 +315,7 @@ int main ( )
                                         if(arrayClientes[j] != i)
                                             send(arrayClientes[j],buffer,sizeof(buffer),0);
                                 }
-                                                                
+                                */                             
                                 
                             }
                             //Si el cliente introdujo ctrl+c
@@ -214,6 +329,7 @@ int main ( )
                     }
                 }
             }
+            //TODO comprobacion en espera
 		}
 
 	close(sd);

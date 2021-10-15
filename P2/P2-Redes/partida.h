@@ -13,6 +13,7 @@ class partida {
         string refranOculto;
         int sockets[2]; //sd de los jugadores;
         string jugadores[2]; //puede ser el login para en el envio poner Turno de <login> en vez de 1 o 2.
+        
 
     public:
         partida();

@@ -16,7 +16,6 @@ class usuario{
     private:
         string username;
         string passwd;
-        int puntos;
         int estado;
         int sd;
 
@@ -25,23 +24,21 @@ class usuario{
         usuario();
         ~usuario();
     
-        usuario(string username, string passwd){
-            setUsername(username);
-            setPasswd(passwd);
+        usuario(int sd, int estado){
+            setSd(sd);
+            setEstado(estado);
         }
         string getUsername();
         string getPasswd();
-        int getPuntos();
         int getEstado();
         int getSd();
 
         void setUsername(string username);
         void setPasswd(string passwd);
-        void setPuntos(int puntos);
         void setEstado(int estado);
         void setSd(int sd);
 
-        void registerUser(string username, string passwd);
+        bool registerUser(string username, string passwd);
         bool login(string username, string passwd);
         bool userExist(string username);
 

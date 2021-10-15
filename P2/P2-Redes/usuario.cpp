@@ -6,9 +6,6 @@
     string usuario::getPasswd(){
         return passwd;
     }
-    int usuario::getPuntos(){
-        return puntos;
-    }
     int usuario::getEstado(){
         return estado;
     }
@@ -22,9 +19,6 @@
     void usuario::setPasswd(string passwd){
         passwd = passwd;
     }
-    void usuario::setPuntos(int puntos){
-        puntos = puntos;
-    }
     void usuario::setEstado(int estado){
         estado = estado;
     }
@@ -32,11 +26,18 @@
         sd = sd;
     }
 
-    void usuario::registerUser(string username, string passwd){
+    bool usuario::registerUser(string username, string passwd){
         ofstream file;
+        bool resultado = false;
         file.open("login.txt",ios::app);
-        file << username << "," << passwd << endl;
-        file.close();
+        if(file.is_open()){
+            if(!userExist(username)){
+                file << username << "," << passwd << endl;
+                file.close();
+                resultado = true;
+            }
+        }
+        return resultado;
     }
     bool usuario::login(string username, string passwd){
         if (userExist(username)){
