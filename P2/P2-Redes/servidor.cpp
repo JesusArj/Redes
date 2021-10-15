@@ -43,6 +43,7 @@ int main ( )
     int salida;
     int arrayClientes[MAX_CLIENTS];
     int numClientes = 0;
+    int numGames=0; 
     vector<usuario> usuariosVec;
     vector<partida> partidasVec;
     list<usuario> enEspera; 
@@ -260,7 +261,7 @@ int main ( )
                                     }
                                 }else if(mensajeRec.find("INICIAR-PARTIDA")==0){
                                     int cont = 0;
-                                    vector<int> enEspera;
+                
 
                                     for(usuario user : usuariosVec){
                                         if(user.getSd() == i){
@@ -268,7 +269,7 @@ int main ( )
                                         }
                                         if(user.getEstado() == 4){
                                             cont++;
-                                            enEspera.push_back(user.getSd());
+                                            enEspera.push_back(user);
                                         }
                                     }
                                 
@@ -330,6 +331,32 @@ int main ( )
                 }
             }
             //TODO comprobacion en espera
+            if(enEspera.size() >=2 && numGames<MAX_GAMES)
+            {
+                auto it=enEspera.begin(); 
+                auto SDAux1 = it; 
+                it++; 
+                auto SDAux2 = it;
+                for(int i=0; i<2; i++)
+                {
+                    enEspera.pop_front();
+                }  
+                usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
+                usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
+                partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
+                partidasVec.push_back(nuevaPartida); 
+                numGames++; 
+            }
+            else if (enEspera.size()>=2 && numGames==MAX_GAMES)
+            {
+                string esperandoFinalizacion = "Esperando a que haya partidas disponibles";
+                //como hacemos para que solo se envie una vez, y no todo el rato? (esta dentro de un bucle)
+            }
+            else if (enEspera.size()==1)
+            {
+                string esperandoJugadores = "Esperando un jugador mas";
+                //lo mismo que antes  
+            }
 		}
 
 	close(sd);
@@ -372,4 +399,16 @@ void manejador (int signum){
     //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
 }
 
+
+int buscarPosicionUsuario(int sd, vector<usuario> v)
+{
+    for(int i =0; i<v.size(); i++)
+    {
+        if(v[i].getSd() == sd )
+        {
+            return i; 
+        }
+    }
+    return 0; 
+}
 #endif
