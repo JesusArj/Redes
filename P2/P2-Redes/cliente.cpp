@@ -11,6 +11,8 @@
 #include <arpa/inet.h>
 #include "frases.h"
 #include "mensajesCliente.h"
+#include "partida.h"
+#include "usuario.h"
 
 using namespace std;
 
@@ -25,11 +27,10 @@ int main (int argc, char* argv[])
 	struct sockaddr_in sockname;
 	char bufferIn[250];
 	char bufferOut[350];
-	string refranOculto;
 	socklen_t len_sockname;
-    	fd_set readfds, auxfds;
-    	int salida;
-    	int fin = 0;
+	fd_set readfds, auxfds;
+	int salida;
+	int fin = 0;
 	
     
 	/* --------------------------------------------------
@@ -70,7 +71,16 @@ int main (int argc, char* argv[])
     FD_SET(0,&readfds);
     FD_SET(sd,&readfds);
 
-    
+    cout<<"Estas son las acciones que puede realizar.\n";
+	cout<<"Iniciar sesión.\n\t Para ello debe escribir USUARIO <suUsuario> y luego PASSWORD <suPasswd>."<<endl;
+	cout<<"Registrarse.\n\t Para ello debe escribir REGISTRO -u <suUsuario> -p <suPasswd>."<<endl;
+	cout<<"Iniciar partida si ya está dentro del sistema.\n\t Para ello debe escribir INICIAR-PARTIDA."<<endl;
+	cout<<"Comprar una vocal.\n\t Para ello debe escribir VOCAL <vocal>."<<endl;
+	cout<<"Elegir una consonante.\n\t Para ello debe escribir CONSONANTE <consonante>."<<endl;
+	cout<<"Ver su puntuacion.\n\t Para ello debe escribir PUNTUACION."<<endl;
+	cout<<"Resolver la frase.\n\t Para ello debe escribir RESOLVER <elRefranResuelto>."<<endl;
+	cout<<"Salir del sistema.\n\t Para ello debe escribir SALIR."<<endl;
+
 	/* ------------------------------------------------------------------
 		Se transmite la información
 	-------------------------------------------------------------------*/
@@ -78,13 +88,6 @@ int main (int argc, char* argv[])
 	{
         auxfds = readfds;
         salida = select(sd+1,&auxfds,NULL,NULL,NULL);
-
-		cout<<"Introduzca la accion a realizar.\n";
-		cout<<"1. Comprar vocal"<<endl;
-		cout<<"2. Decir consonante"<<endl;
-		cout<<"3. Ver puntuacion"<<endl;
-		cout<<"4. Resolver frase"<<endl;
-		cout<<"5. Salir"<<endl;
         
         //Tengo mensaje desde el servidor
         if(FD_ISSET(sd, &auxfds)){
@@ -109,67 +112,15 @@ int main (int argc, char* argv[])
         {
             //He introducido información por teclado
             if(FD_ISSET(0,&auxfds)){
-			int opcion;
-			string mensajeEnvio, resolver;
-			cin>>opcion;
-			switch (opcion)
-			{
-				case 1:
-					cout<<"Ha seleccionado Comprar una vocal. Introduzca la voca a comprar\n";
-					char vocal;
-					cin >> vocal;
-					if (isalpha(vocal)){
-						if(isVowel(vocal)){
-							mensajeEnvio = introducirVocal(vocal);
-						}
-					}
-					break;
-				
-				case 2:
-					cout<<"Ha seleccionado ver una consonante. Introduzca la consonante a comprobar\n";
-					char consonante;
-					cin >> consonante;
-					if (isalpha(consonante)){
-						if(!isVowel(consonante)){
-							mensajeEnvio = introducirConsonante(consonante);
-						}
-					}
-					break;
+			string mensajeEnvio;
+			bzero(bufferOut,sizeof(bufferOut));
+			fgets(bufferOut, sizeof(bufferOut),stdin);
+			if(strcmp(bufferOut,"SALIR\n") == 0)
+				fin = 1;
+			send(sd,bufferOut,sizeof(bufferOut),0);
 
-				case 3:
-					cout<<"Ha seleccionado ver su puntuacion.\n";
-					mensajeEnvio = introducirPuntuacion();
-					break;
-
-				case 4:
-					cout<<"Ha seleccionado resolver la frase. Por favor, introduzca el refran.\n";
-					cin>>resolver;
-					mensajeEnvio = resolverFrase(resolver);
-					break;
-				
-				case 5:
-					cout<<"Gracias por usar nuestro sistema. Hasta la proxima\n";
-					mensajeEnvio = salir();
-					break;
-
-				default:
-					cout<<"Opcion no valida.\n";
-					break;
-				}
-
-                bzero(bufferOut,sizeof(bufferOut));
-                
-				strcpy(bufferOut,mensajeEnvio.c_str());
-
-                if(strcmp(bufferOut,"SALIR\n") == 0)
-					fin = 1;
-                
-                send(sd,bufferOut,sizeof(bufferOut),0);
-                
-            }
-                
-        }
-        		
+            }                
+        }	
     }while(fin == 0);
 		
     close(sd);
