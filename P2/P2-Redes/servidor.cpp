@@ -471,6 +471,68 @@ int main ( )
 
                                 }else if(mensajeRec.find("RESOLVER ")==0){
 
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            int pos;
+                                            if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
+                                                partida p = partidasVec[pos];
+                                                if(p.getTurno() == i){
+                                                    string refran = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
+                                                    //TODO A comprar vocales hay que pasarle el refran oculto y puntos como referencia pero da error si haces eso.
+                                                    if(resolverRefran(refran, p.getRefranResuelto())){
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"Correcto. El refran es : %s", p.getRefranResuelto());
+                                                        strcpy(buffer,identificador);
+                                                        send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                        send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"Partida finalizada");
+                                                        strcpy(buffer,identificador);
+                                                        send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                        send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                        //TODO sacar partida de lista partida, cambiar estado users a 3
+                                                    }
+                                                    else{
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"Incorrecto, el refran buscado es diferente a %s", refran);
+                                                        strcpy(buffer,identificador);
+                                                        send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                        send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
+                                                        strcpy(buffer,identificador);
+                                                        send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                        send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                        p.nextTurno();
+
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"Ahora es el turno de %d", p.getTurno());
+                                                        strcpy(buffer,identificador);
+                                                        send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                        send(p.getSockets()[1],buffer,sizeof(buffer),0);
+                                                    }                                                    
+                                                }
+                                                else{
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. No es su turno. Espere a que le corresponda");
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                            }
+                                            else{
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
+                                            }
+                                        }
+                                    }
+
                                 }else if(mensajeRec.find("PUNTUACION")==0){
 
                                 }
@@ -524,7 +586,8 @@ int main ( )
 	return 0;
 	
 }
-
+//TODO esto hay que cambiarlo para nuestro programa. Si alguien se sale tenemos que cerrar la partida en la que estaba y meter al otro jugador en cola? 
+    //o llevarlo al menu de si quiere iniciar-partida o salir, estado 3 creo. 
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]){
   
     char buffer[250];

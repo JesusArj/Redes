@@ -21,6 +21,13 @@ string ocultarRefran(string refran){
     return refranOculto;
 }
 
+bool resolverRefran(string refranIntento, string refran){
+    bool intento = false;
+    if(refran.compare(refranIntento))
+        intento = true;
+    return intento;
+}
+
 //TODO Revisar paso por referencia
 bool rellenarConsonantes(string refranOculto, string refran, char consonante, int puntos ){
     int puntosOld = puntos;
