@@ -21,7 +21,8 @@ string ocultarRefran(string refran){
     return refranOculto;
 }
 
-bool rellenarConsonantes(string &refranOculto, string refran, char consonante, int &puntos ){
+//TODO Revisar paso por referencia
+bool rellenarConsonantes(string refranOculto, string refran, char consonante, int puntos ){
     int puntosOld = puntos;
     char space = ' ', end = '\0';
     for(int i=0; i<refran.size(); i++){
@@ -36,7 +37,8 @@ bool rellenarConsonantes(string &refranOculto, string refran, char consonante, i
         return false;
 }
 
-bool comprarVocales(string &refranOculto, string refran, char vocal, int &puntos ){
+//TODO Revisar paso por referencia
+bool comprarVocales(string refranOculto, string refran, char vocal, int puntos ){
     bool cambio = false;
     char space = ' ', end = '\0';
     puntos -= 50;

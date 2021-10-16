@@ -24,6 +24,10 @@ string* partida::getJugadores(){
     return jugadores;
 }
 
+int* partida::getPuntos(){
+    return puntos;
+}
+
 void partida::setTurno(int i){
     turno = i;
 }
@@ -40,6 +44,10 @@ void partida::setSockets(int sd1, int sd2){
 void partida::setJugadores(string jugador1, string jugador2){
     jugadores[0]=jugador1;
     jugadores[1]=jugador2;
+}
+void partida::setPuntos(int puntos1, int puntos2){
+    puntos[0] = puntos1;
+    puntos[1] = puntos2;
 }
 
 void partida::nextTurno(){

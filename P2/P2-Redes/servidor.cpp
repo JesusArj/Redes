@@ -27,6 +27,8 @@
  */
 
 void manejador(int signum);
+int buscarPosicionPartida(int sd, vector<partida> v);
+int buscarPosicionUsuario(int sd, vector<usuario> v);
 void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
 
 int main ( )
@@ -199,15 +201,25 @@ int main ( )
                                                 if(user.userExist(userName)){
                                                 user.setUsername(userName);
                                                 user.setEstado(user.getEstado()+1);
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",user.getUsername());
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
                                                 }
                                             }
                                             else{
-                                                string wrongName = "-Err. Usuario no encontrado\n"; 
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"-Err. Usuario no encontrado");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
                                             }
                                            
                                         }
                                         else{
-                                            string wrongEstado = "Accion no permitida\n";
+                                            bzero(buffer, sizeof(buffer));              
+                                            sprintf(identificador,"-Err. Accion no permitida");
+                                            strcpy(buffer,identificador);
+                                            send(i,buffer,sizeof(buffer),0);
                                         }
                                     }
     
@@ -222,15 +234,25 @@ int main ( )
                                                 {
                                                     user.setPasswd(passwd);
                                                     user.setEstado(user.getEstado()+1);
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"Bienvenido %s a la Ruleta de la fortuna.",user.getUsername());
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
                                                 }
                                                 else
                                                 {
-                                                    string wrongPasswd = "Contrasena incorrecta\n"; 
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. Contrasena incorrecta");
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
                                                 }
                                             }
                                             else
                                             {
-                                                string wrongEstado = "Accion no permitida\n";
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"-Err. Accion no permitida");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
                                             }    
                                         }
                                     }
@@ -247,52 +269,206 @@ int main ( )
                                                     user.setUsername(username);
                                                     user.setPasswd(passwd);
                                                     user.setEstado(user.getEstado()+2);
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"Bienvenido %s a la Ruleta de la fortuna.",user.getUsername());
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
                                                 }
                                                 else
                                                 {
-                                                    string wrongPasswd = "Error en el registro\n"; 
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. Error en el registro");
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
                                                 }
                                             }
                                             else
                                             {
-                                                string wrongEstado = "Accion no permitida\n";
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"-Err. Accion no permitida");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
                                             }    
                                         }
                                     }
                                 }else if(mensajeRec.find("INICIAR-PARTIDA")==0){
-                                    int cont = 0;
-                
-
                                     for(usuario user : usuariosVec){
                                         if(user.getSd() == i){
                                             user.setEstado(user.getEstado()+1);
                                         }
                                         if(user.getEstado() == 4){
-                                            cont++;
                                             enEspera.push_back(user);
+                                            bzero(buffer, sizeof(buffer));              
+                                            sprintf(identificador,"%s , ha sido añadido a la cola de espera", user.getUsername());
+                                            strcpy(buffer,identificador);
+                                            send(i,buffer,sizeof(buffer),0);
                                         }
                                     }
                                 
                                 }else if(mensajeRec.find("CONSONANTE ")==0){
-                                    string consonante = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
-                                    if(consonante.size()==1){
-                                        char cons = (char)consonante[0];
-                                        if(isConsonant(cons)){
-                                            for(usuario user : usuariosVec){
-                                            if(user.getSd()==i){
-                                               
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            int pos;
+                                            if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
+                                                partida p = partidasVec[pos];
+                                                if(p.getTurno() == i){
+                                                    string consonante = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    if(consonante.size() == 1){
+                                                        char cons = (char)consonante[0];
+                                                        if(isalpha(cons)){
+                                                            if(isConsonant(cons)){
+                                                                p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
+                                                                //TODO A rellenar consonantes hay que pasarle refranOculto y puntos por referencia pero da error si lo haces
+                                                                if(rellenarConsonantes(p.getRefranOculto(),p.getRefranResuelto(),cons,p.getPuntos()[pos])){
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
 
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"Sigue siendo el turno de %d", p.getTurno());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+                                                                }
+                                                                else{
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"La consonante %c no se encuentra en el refran", cons);
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
 
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
 
+                                                                    p.nextTurno();
+
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"Ahora es el turno de %d", p.getTurno());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+                                                                }
+                                                            
+                                                            }
+                                                            else
+                                                            {
+                                                                bzero(buffer, sizeof(buffer));              
+                                                                sprintf(identificador,"-Err. El argumento introducido no es una consonante.");
+                                                                strcpy(buffer,identificador);
+                                                                send(i,buffer,sizeof(buffer),0);
+                                                            }
+                                                        }
+                                                    }
+                                                    else{
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"-Err. El argumento introducido no es valido.");
+                                                        strcpy(buffer,identificador);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                    }
+                                                }
+                                                else{
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. No es su turno. Espere a que le corresponda");
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                            }
+                                            else{
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
                                             }
                                         }
-                                            
-                                        }
-                                    }
-                                    
+                                    }                                        
                                     
                                 }else if(mensajeRec.find("VOCAL ")==0){
-                                    
+                                    for(usuario user : usuariosVec){
+                                        if(user.getSd()==i){
+                                            int pos;
+                                            if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
+                                                partida p = partidasVec[pos];
+                                                if(p.getTurno() == i){
+                                                    string vocal = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    if(vocal.size() == 1){
+                                                        char voc = (char)vocal[0];
+                                                        if(isalpha(voc)) {
+                                                            if(isVowel(voc)){
+                                                                p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
+                                                                //TODO A comprar vocales hay que pasarle el refran oculto y puntos como referencia pero da error si haces eso.
+                                                                if(comprarVocales(p.getRefranOculto(),p.getRefranResuelto(),voc,p.getPuntos()[pos])){
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"Sigue siendo el turno de %d", p.getTurno());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+                                                                }
+                                                                else{
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"La vocal %c no se encuentra en el refran", voc);
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                    p.nextTurno();
+
+                                                                    bzero(buffer, sizeof(buffer));              
+                                                                    sprintf(identificador,"Ahora es el turno de %d", p.getTurno());
+                                                                    strcpy(buffer,identificador);
+                                                                    send(p.getSockets()[0],buffer,sizeof(buffer),0);
+                                                                    send(p.getSockets()[1],buffer,sizeof(buffer),0);
+                                                                }
+                                                            
+                                                            }
+                                                            else
+                                                            {
+                                                                bzero(buffer, sizeof(buffer));              
+                                                                sprintf(identificador,"-Err. El argumento introducido no es una vocal.");
+                                                                strcpy(buffer,identificador);
+                                                                send(i,buffer,sizeof(buffer),0);
+                                                            }
+                                                        }
+                                                    }
+                                                    else{
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"-Err. El argumento introducido no es valido.");
+                                                        strcpy(buffer,identificador);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                    }
+                                                }
+                                                else{
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. No es su turno. Espere a que le corresponda");
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
+                                                }
+                                            }
+                                            else{
+                                                bzero(buffer, sizeof(buffer));              
+                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
+                                            }
+                                        }
+                                    }  
+
                                 }else if(mensajeRec.find("RESOLVER ")==0){
 
                                 }else if(mensajeRec.find("PUNTUACION")==0){
@@ -303,20 +479,7 @@ int main ( )
                                 }
                                 else {
                                     string wrongFormat = "-Err. fallo accion";
-                                }
-                                
-                                /*
-                                else{
-                                    
-                                    sprintf(identificador,"<%d>: %s",i,buffer);
-                                    bzero(buffer,sizeof(buffer));
-                                    strcpy(buffer,identificador);
-                                    printf("%s\n", buffer);
-                                    for(j=0; j<numClientes; j++)
-                                        if(arrayClientes[j] != i)
-                                            send(arrayClientes[j],buffer,sizeof(buffer),0);
-                                }
-                                */                             
+                                }                           
                                 
                             }
                             //Si el cliente introdujo ctrl+c
@@ -344,18 +507,16 @@ int main ( )
                 usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
                 usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
                 partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
+                nuevaPartida.setRefranResuelto(pickRefran());
+                nuevaPartida.setRefranOculto(ocultarRefran(nuevaPartida.getRefranResuelto()));
+                nuevaPartida.setTurno(SDAux1->getSd());
                 partidasVec.push_back(nuevaPartida); 
                 numGames++; 
-            }
-            else if (enEspera.size()>=2 && numGames==MAX_GAMES)
-            {
-                string esperandoFinalizacion = "Esperando a que haya partidas disponibles";
-                //como hacemos para que solo se envie una vez, y no todo el rato? (esta dentro de un bucle)
-            }
-            else if (enEspera.size()==1)
-            {
-                string esperandoJugadores = "Esperando un jugador mas";
-                //lo mismo que antes  
+                bzero(buffer, sizeof(buffer));
+                sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
+                strcpy(buffer,identificador);
+                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
             }
 		}
 
@@ -411,4 +572,17 @@ int buscarPosicionUsuario(int sd, vector<usuario> v)
     }
     return 0; 
 }
+
+int buscarPosicionPartida(int sd, vector<partida> v)
+{
+    for(int i =0; i<v.size(); i++)
+    {
+        if(v[i].getSockets()[0] == sd || v[i].getSockets()[1] == sd)
+        {
+            return i; 
+        }
+    }
+    return 11; 
+}
+
 #endif
