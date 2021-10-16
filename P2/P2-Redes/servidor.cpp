@@ -29,7 +29,7 @@
 void manejador(int signum);
 int buscarPosicionPartida(int sd, vector<partida> v);
 int buscarPosicionUsuario(int sd, vector<usuario> v);
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]);
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> p, vector<usuario> u);
 
 int main ( )
 {
@@ -319,7 +319,7 @@ int main ( )
                                                             if(isConsonant(cons)){
                                                                 p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                                 //TODO A rellenar consonantes hay que pasarle refranOculto y puntos por referencia pero da error si lo haces
-                                                                if(rellenarConsonantes(p.getRefranOculto(),p.getRefranResuelto(),cons,p.getPuntos()[pos])){
+                                                                if(p.rellenarConsonantes(p.getRefranOculto(),p.getRefranResuelto(),cons,p.getPuntos()[pos])){
                                                                     bzero(buffer, sizeof(buffer));              
                                                                     sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
                                                                     strcpy(buffer,identificador);
@@ -401,7 +401,7 @@ int main ( )
                                                             if(isVowel(voc)){
                                                                 p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                                 //TODO A comprar vocales hay que pasarle el refran oculto y puntos como referencia pero da error si haces eso.
-                                                                if(comprarVocales(p.getRefranOculto(),p.getRefranResuelto(),voc,p.getPuntos()[pos])){
+                                                                if(p.comprarVocales(p.getRefranOculto(),p.getRefranResuelto(),voc,p.getPuntos()[pos])){
                                                                     bzero(buffer, sizeof(buffer));              
                                                                     sprintf(identificador,"El refran actual : %s", p.getRefranOculto());
                                                                     strcpy(buffer,identificador);
@@ -480,7 +480,7 @@ int main ( )
                                                     string refran = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
                                                     p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                     //TODO A comprar vocales hay que pasarle el refran oculto y puntos como referencia pero da error si haces eso.
-                                                    if(resolverRefran(refran, p.getRefranResuelto())){
+                                                    if(p.resolverRefran(refran, p.getRefranResuelto())){
                                                         bzero(buffer, sizeof(buffer));              
                                                         sprintf(identificador,"Correcto. El refran es : %s", p.getRefranResuelto());
                                                         strcpy(buffer,identificador);
@@ -493,7 +493,12 @@ int main ( )
                                                         send(p.getSockets()[0],buffer,sizeof(buffer),0);
                                                         send(p.getSockets()[1],buffer,sizeof(buffer),0);
 
-                                                        //TODO sacar partida de lista partida, cambiar estado users a 3
+                                                        //HECHO sacar partida de lista partida, cambiar estado users a 3
+                                                        usuariosVec[buscarPosicionUsuario(p.getSockets()[1],usuariosVec)].setEstado(3);
+                                                        usuariosVec[buscarPosicionUsuario(p.getSockets()[2],usuariosVec)].setEstado(3);
+                                                        partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(p.getSockets()[0], partidasVec)); 
+
+
                                                     }
                                                     else{
                                                         bzero(buffer, sizeof(buffer));              
@@ -537,7 +542,7 @@ int main ( )
 
                                 }
                                 else if(mensajeRec.find("SALIR") == 0){
-                                    salirCliente(i,&readfds,&numClientes,arrayClientes);
+                                    salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                                 }
                                 else {
                                     string wrongFormat = "-Err. fallo accion";
@@ -549,13 +554,12 @@ int main ( )
                             {
                                 printf("El socket %d, ha introducido ctrl+c\n", i);
                                 //Eliminar ese socket
-                                salirCliente(i,&readfds,&numClientes,arrayClientes);
+                                salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                             }
                         }
                     }
                 }
             }
-            //TODO comprobacion en espera
             if(enEspera.size() >=2 && numGames<MAX_GAMES)
             {
                 auto it=enEspera.begin(); 
@@ -569,8 +573,8 @@ int main ( )
                 usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
                 usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
                 partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
-                nuevaPartida.setRefranResuelto(pickRefran());
-                nuevaPartida.setRefranOculto(ocultarRefran(nuevaPartida.getRefranResuelto()));
+                nuevaPartida.setRefranResuelto(nuevaPartida.pickRefran());
+                nuevaPartida.setRefranOculto(nuevaPartida.ocultarRefran(nuevaPartida.getRefranResuelto()));
                 nuevaPartida.setTurno(SDAux1->getSd());
                 partidasVec.push_back(nuevaPartida); 
                 numGames++; 
@@ -586,9 +590,9 @@ int main ( )
 	return 0;
 	
 }
-//TODO esto hay que cambiarlo para nuestro programa. Si alguien se sale tenemos que cerrar la partida en la que estaba y meter al otro jugador en cola? 
-    //o llevarlo al menu de si quiere iniciar-partida o salir, estado 3 creo. 
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClientes[]){
+//HECHO esto hay que cambiarlo para nuestro programa. Si alguien se sale tenemos que cerrar la partida en la que estaba y meter al otro jugador en cola? 
+//o llevarlo al menu de si quiere iniciar-partida o salir, estado 3 creo. 
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> p, vector<usuario> u){
   
     char buffer[250];
     int j;
@@ -605,14 +609,30 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int arrayClie
     
     (*numClientes)--;
     
+
+    int pos = buscarPosicionPartida(socket, p);
     bzero(buffer,sizeof(buffer));
-    sprintf(buffer,"Desconexión del cliente: %d\n",socket);
-    
-    for(j=0; j<(*numClientes); j++)
-        if(arrayClientes[j] != socket)
-            send(arrayClientes[j],buffer,sizeof(buffer),0);
-
-
+    sprintf(buffer,"Desconexión de su rival, escriba INICIAR-PARTIDA para buscar nueva partida.");
+    if(socket==p[pos].getSockets()[1])
+    {
+        send(p[pos].getSockets()[0], buffer, sizeof(buffer), 0);
+        //le ponemos al otro usuario el estado = 3
+        int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[0] ,u); 
+        u[auxPosi].setEstado(3); 
+    }
+    else if(socket==p[pos].getSockets()[0])
+    {
+        send(p[pos].getSockets()[1], buffer, sizeof(buffer), 0); 
+        //le ponemos al otro usuario el estado = 3
+        int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[1] ,u); 
+        u[auxPosi].setEstado(3); 
+    }
+    //quitamos al usuario del vector de usuarios
+    int posUsuario = buscarPosicionUsuario(socket, u);
+    u.erase(u.begin()+posUsuario);  
+    //terminamos la partida y decrementamos el numgames
+    p.erase(p.begin() + pos); 
+    (*numGames)++; 
 }
 
 

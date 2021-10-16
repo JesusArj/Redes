@@ -26,7 +26,11 @@ class partida {
         int* getSockets();
         string* getJugadores();
         int* getPuntos();
-
+        string pickRefran(); 
+        string ocultarRefran(string refran);
+        bool comprarVocales(string refranOculto, string refran, char vocal, int puntos );
+        bool resolverRefran(string refranIntento, string refran);
+        bool rellenarConsonantes(string refranOculto, string refran, char consonante, int puntos );
         void setTurno(int i);
         void setRefranResuelto(string refran);
         void setRefranOculto(string refran);
