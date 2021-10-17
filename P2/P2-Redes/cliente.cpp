@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <arpa/inet.h>
-#include "frases.h"
 #include "partida.h"
 #include "usuario.h"
 
@@ -49,8 +48,8 @@ int main (int argc, char* argv[])
 		servidor y el puerto del servicio que solicitamos
 	-------------------------------------------------------------------*/
 	sockname.sin_family = AF_INET;
-	sockname.sin_port = htons(2000);
-	sockname.sin_addr.s_addr =  inet_addr(ip);
+	sockname.sin_port = htons(2050);
+	sockname.sin_addr.s_addr = inet_addr(ip);
 
 	/* ------------------------------------------------------------------
 		Se solicita la conexión con el servidor

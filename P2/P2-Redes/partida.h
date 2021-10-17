@@ -6,10 +6,6 @@
 
 using namespace std;
 
-string Refran[] = {
-#include "refranes"
-} ;
-
 class partida {
     private:
         int turno; //lo indicas con 0 o 1 para mirar el socket que toque

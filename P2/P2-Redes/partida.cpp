@@ -9,6 +9,10 @@ partida::partida(int sd1, int sd2,string j1, string j2){
     setPuntos(0,0);
 }
 
+string Refran[] = {
+#include "refranes"
+} ;
+
 void partida::pickRefran()
 {
     srand(time(NULL));
