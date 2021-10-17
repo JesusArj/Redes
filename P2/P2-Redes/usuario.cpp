@@ -56,6 +56,9 @@
             }
             return found;  
         }
+        else{
+            return false;
+        }
     }
     bool usuario::userExist(string username){
         ifstream file("login.txt");

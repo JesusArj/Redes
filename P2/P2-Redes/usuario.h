@@ -20,10 +20,6 @@ class usuario{
         int sd;
 
     public:
-
-        usuario();
-        ~usuario();
-    
         usuario(int sd, int estado){
             setSd(sd);
             setEstado(estado);

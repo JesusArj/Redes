@@ -10,10 +10,6 @@
 
 using namespace std;
 
-string Refran[] = {
-#include "refranes"
-} ;
-
 bool isVowel(char vocal);
 
 bool isConsonant(char consonant);
