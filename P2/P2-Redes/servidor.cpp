@@ -200,7 +200,8 @@ int main ( )
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             if(user.getEstado()==0){
-                                                if(user.userExist(userName)){
+                                                if(user.userExist(userName))
+                                                {
                                                 user.setUsername(userName);
                                                 user.setEstado(user.getEstado()+1);
                                                 bzero(buffer, sizeof(buffer));
@@ -212,7 +213,7 @@ int main ( )
                                             }
                                             else{
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"-Err. Usuario no encontrado");
+                                                sprintf(identificador,"-Err. Accion no permitida");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
@@ -220,7 +221,7 @@ int main ( )
                                         }
                                         else{
                                             bzero(buffer, sizeof(buffer));              
-                                            sprintf(identificador,"-Err. Accion no permitida");
+                                            sprintf(identificador,"-Err. Usuario no encontrado");
                                             strcpy(buffer,identificador);
                                             send(i,buffer,sizeof(buffer),0);
                                         }
@@ -676,30 +677,34 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
         (arrayClientes[j] = arrayClientes[j+1]);
     
     (*numClientes)--;
-
-    int pos = buscarPosicionPartida(socket, p);
     bzero(buffer,sizeof(buffer));
     sprintf(buffer,"Desconexión de su rival, escriba INICIAR-PARTIDA para buscar nueva partida.");
-    if(socket==p[pos].getSockets()[1])
+    int posiUsuario = buscarPosicionUsuario(socket, u);
+    if(u[posiUsuario].getEstado()>3)
     {
-        send(p[pos].getSockets()[0], buffer, sizeof(buffer), 0);
-        //le ponemos al otro usuario el estado = 3
-        int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[0] ,u); 
-        u[auxPosi].setEstado(3); 
-    }
-    else if(socket==p[pos].getSockets()[0])
-    {
-        send(p[pos].getSockets()[1], buffer, sizeof(buffer), 0); 
-        //le ponemos al otro usuario el estado = 3
-        int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[1] ,u); 
-        u[auxPosi].setEstado(3); 
-    }
+        int pos = buscarPosicionPartida(socket, p);
+        if(socket==p[pos].getSockets()[1])
+        {
+            send(p[pos].getSockets()[0], buffer, sizeof(buffer), 0);
+            //le ponemos al otro usuario el estado = 3
+            int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[0] ,u); 
+            u[auxPosi].setEstado(3); 
+        }
+        else if(socket==p[pos].getSockets()[0])
+        {
+            send(p[pos].getSockets()[1], buffer, sizeof(buffer), 0); 
+            //le ponemos al otro usuario el estado = 3
+            int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[1] ,u); 
+            u[auxPosi].setEstado(3); 
+        }
+        //terminamos la partida y decrementamos el numgames
+        p.erase(p.begin() + pos); 
+        (*numGames)--; 
+    } 
+
     //quitamos al usuario del vector de usuarios
     int posUsuario = buscarPosicionUsuario(socket, u);
     u.erase(u.begin()+posUsuario);  
-    //terminamos la partida y decrementamos el numgames
-    p.erase(p.begin() + pos); 
-    (*numGames)--; 
 }
 
 
