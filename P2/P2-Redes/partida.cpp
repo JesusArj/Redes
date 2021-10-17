@@ -3,44 +3,42 @@
 partida::partida(int sd1, int sd2,string j1, string j2){
     setSockets(sd1,sd2);
     setJugadores(j1,j2);
-    setRefranResuelto(pickRefran());
-    setRefranOculto(ocultarRefran(this->refranResuelto));
+    pickRefran();
+    ocultarRefran();
     setTurno(0);
+    setPuntos(0,0);
 }
 
-string partida::pickRefran()
+void partida::pickRefran()
 {
     srand(time(NULL));
-    string refran = Refran[rand() % 30];
-    return refran;
+    refranResuelto = Refran[rand() % 30];
 }
-string partida::ocultarRefran(string refran){
-    string refranOculto(refran);
+void partida::ocultarRefran(){
     char aux = '_', space = ' ', end = '\0';
-    for(int i=0; i<refran.size(); i++){
-        if(isalpha(refran[i])){
+    for(int i=0; i<refranResuelto.size(); i++){
+        if(isalpha(refranResuelto[i])){
             refranOculto[i]=aux;
-        }else if(refran[i]==space){
+        }else if(refranResuelto[i]==space){
             refranOculto[i]=space;
-        }else if (refran[i]==end){
+        }else if (refranResuelto[i]==end){
             refranOculto[i]==end;
         }
     }
-    return refranOculto;
 }
-bool partida::resolverRefran(string refranIntento, string refran){
+bool partida::resolverRefran(string refranIntento){
     bool intento = false;
-    if(refran.compare(refranIntento))
+    if(refranResuelto.compare(refranIntento))
         intento = true;
     return intento;
 }
 //TODO Revisar paso por referencia
-bool partida::comprarVocales(string refranOculto, string refran, char vocal, int puntos ){
+bool partida::comprarVocales(char vocal, int sd){
     bool cambio = false;
     char space = ' ', end = '\0';
-    puntos -= 50;
-    for(int i=0; i<refran.size(); i++){
-        if(refran[i] == vocal){
+    puntos[sd] -= 50;
+    for(int i=0; i<refranResuelto.size(); i++){
+        if(refranResuelto[i] == vocal){
             refranOculto[i]=vocal;
             cambio = true;
         }
@@ -48,16 +46,16 @@ bool partida::comprarVocales(string refranOculto, string refran, char vocal, int
     return cambio;
 }
 //TODO Revisar paso por referencia
-bool partida::rellenarConsonantes(string refranOculto, string refran, char consonante, int puntos ){
-    int puntosOld = puntos;
+bool partida::rellenarConsonantes(char consonante, int sd){
+    int puntosOld = puntos[sd];
     char space = ' ', end = '\0';
-    for(int i=0; i<refran.size(); i++){
-        if(refran[i] == consonante){
+    for(int i=0; i<refranResuelto.size(); i++){
+        if(refranResuelto[i] == consonante){
             refranOculto[i]=consonante;
-            puntos += 50;
+            puntos[sd] += 50;
         }
     }
-    if(puntosOld != puntos)
+    if(puntosOld != puntos[sd])
         return true;
     else
         return false;
