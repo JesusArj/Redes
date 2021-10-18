@@ -17,16 +17,15 @@ void partida::pickRefran()
     refranResuelto = Refran[rand() % 30];
 }
 void partida::ocultarRefran(){
-    char aux = '_', space = ' ', end = '\0';
+    string oculto;
     for(int i=0; i<refranResuelto.size(); i++){
         if(isalpha(refranResuelto[i])){
-            refranOculto[i]=aux;
-        }else if(refranResuelto[i]==space){
-            refranOculto[i]=space;
-        }else if (refranResuelto[i]==end){
-            refranOculto[i]=end;
+            oculto+="_";
+        }else if(refranResuelto[i]==" "){
+            oculto+= " ";
         }
     }
+    refranOculto = oculto;
 }
 bool partida::resolverRefran(string refranIntento){
     bool intento = false;
