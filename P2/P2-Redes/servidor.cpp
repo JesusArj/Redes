@@ -253,10 +253,6 @@ int main ( )
                                     string passwd(PasswdArg);
                                      for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(identificador,"Estado = %i",user.getEstado());
-                                            strcpy(buffer,identificador);
-                                            send(i,buffer,sizeof(buffer),0);
                                             if(user.getEstado()==1)
                                             {
                                                 if(user.login(user.getUsername(), passwd))
@@ -324,14 +320,19 @@ int main ( )
                                         }
                                     }
                                 }else if(mensajeRec.find("INICIAR-PARTIDA")==0){
-                                    for(usuario user : usuariosVec){
-                                        if(user.getSd() == i){
-                                            user.setEstado(user.getEstado()+1);
+                                    
+                                    for(auto it = usuariosVec.begin(); it!=usuariosVec.end(); it++){
+                                        if((*it).getSd() == i){
+                                            (*it).setEstado(3);
+                                            bzero(buffer, sizeof(buffer));
+                                            sprintf(identificador,"Estado= %i", (*it).getEstado());
+                                            strcpy(buffer,identificador);
+                                            send(i,buffer,sizeof(buffer),0);
                                         }
-                                        if(user.getEstado() == 4){
-                                            enEspera.push_back(user);
+                                        if((*it).getEstado() == 3){
+                                            enEspera.push_back((*it));
                                             bzero(buffer, sizeof(buffer));              
-                                            aux = &user.getUsername()[0]; 
+                                            aux = &(*it).getUsername()[0]; 
                                             sprintf(identificador,"%s , ha sido añadido a la cola de espera", aux);
                                             strcpy(buffer,identificador);
                                             send(i,buffer,sizeof(buffer),0);
@@ -671,8 +672,8 @@ int main ( )
             {
                 enEspera.pop_front();
             }  
-            usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
-            usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
+            usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(4);
+            usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(4);
             partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
             nuevaPartida.pickRefran();
             nuevaPartida.ocultarRefran();
