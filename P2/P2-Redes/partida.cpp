@@ -21,7 +21,7 @@ void partida::ocultarRefran(){
     for(int i=0; i<refranResuelto.size(); i++){
         if(isalpha(refranResuelto[i])){
             oculto+="_";
-        }else if(refranResuelto[i]==' '){
+        }else if(refranResuelto[i] == ' ' ){
             oculto+= " ";
         }
     }
@@ -35,25 +35,33 @@ bool partida::resolverRefran(string refranIntento){
 }
 bool partida::comprarVocales(char vocal, int sd){
     bool cambio = false;
-    char space = ' ', end = '\0';
+    string oculto;
     puntos[sd] -= 50;
     for(int i=0; i<refranResuelto.size(); i++){
         if(refranResuelto[i] == vocal){
-            refranOculto[i]=vocal;
+            oculto += vocal;
             cambio = true;
         }
+        else{
+            oculto += refranOculto[i];
+        }
     }
+    refranOculto = oculto;
     return cambio;
 }
 bool partida::rellenarConsonantes(char consonante, int sd){
     int puntosOld = puntos[sd];
-    char space = ' ', end = '\0';
+    string oculto;
     for(int i=0; i<refranResuelto.size(); i++){
         if(refranResuelto[i] == consonante){
-            refranOculto[i]=consonante;
+            oculto += consonante;
             puntos[sd] += 50;
         }
+        else{
+            oculto += refranOculto[i];
+        }
     }
+    refranOculto = oculto;
     if(puntosOld != puntos[sd])
         return true;
     else
