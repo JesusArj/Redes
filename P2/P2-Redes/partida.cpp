@@ -3,10 +3,8 @@
 partida::partida(int sd1, int sd2,string j1, string j2){
     setSockets(sd1,sd2);
     setJugadores(j1,j2);
-    pickRefran();
-    ocultarRefran();
-    setTurno(0);
     setPuntos(0,0);
+    pickRefran(); 
 }
 
 string Refran[] = {
@@ -26,7 +24,7 @@ void partida::ocultarRefran(){
         }else if(refranResuelto[i]==space){
             refranOculto[i]=space;
         }else if (refranResuelto[i]==end){
-            refranOculto[i]==end;
+            refranOculto[i]=end;
         }
     }
 }
