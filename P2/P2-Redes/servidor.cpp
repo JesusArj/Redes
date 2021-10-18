@@ -136,7 +136,39 @@ int main ( )
                     //Buscamos el socket por el que se ha establecido la comunicación
                     if(FD_ISSET(i, &auxfds)) 
                     {
-                        
+                        if(!enEspera.empty()  && enEspera.size() >=2 && numGames<MAX_GAMES)
+                            {
+                            auto it=enEspera.begin(); 
+                            auto SDAux1 = it; 
+                            it++; 
+                            auto SDAux2 = it;
+                            for(int i=0; i<2; i++)
+                            {
+                                enEspera.pop_front();
+                            }
+                            
+                            int sd1 = SDAux1->getSd();
+                            int sd2 = SDAux2->getSd();
+                            string user1 = SDAux1->getUsername();
+                            string user2 = SDAux2->getUsername();
+                            int pos1 = buscarPosicionUsuario(sd1, usuariosVec);
+                            int pos2 = buscarPosicionUsuario(sd2, usuariosVec);
+                            usuariosVec[pos1].setEstado(4);
+                            usuariosVec[pos2].setEstado(4);
+                            partida nuevaPartida(sd1,sd2,user1,user2);
+                            nuevaPartida.pickRefran();
+                            nuevaPartida.ocultarRefran();
+                            nuevaPartida.setTurno(sd1);
+                            partidasVec.push_back(nuevaPartida); 
+                            numGames++; 
+                            
+                            bzero(buffer, sizeof(buffer));
+                            sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
+                            strcpy(buffer,identificador);
+                            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+                            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
+                            }
+
                         if( i == sd)
                         {
                             
@@ -673,30 +705,7 @@ int main ( )
                     }
                 }
             }
-            if(enEspera.size() >=2 && numGames<MAX_GAMES)
-            {
-                auto it=enEspera.begin(); 
-                auto SDAux1 = it; 
-                it++; 
-                auto SDAux2 = it;
-                for(int i=0; i<2; i++)
-                {
-                    enEspera.pop_front();
-                }  
-                usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(4);
-                usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(4);
-                partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
-                nuevaPartida.pickRefran();
-                nuevaPartida.ocultarRefran();
-                nuevaPartida.setTurno(SDAux1->getSd());
-                partidasVec.push_back(nuevaPartida); 
-                numGames++; 
-                bzero(buffer, sizeof(buffer));
-                sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
-                strcpy(buffer,identificador);
-                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
-                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
-            }
+            
 	    }
 
 	close(sd);
