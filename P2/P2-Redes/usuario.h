@@ -29,9 +29,9 @@ class usuario{
         int getEstado();
         int getSd();
 
-        void setUsername(string username);
+        void setUsername(string newusername);
         void setPasswd(string passwd);
-        void setEstado(int estado);
+        void setEstado(int newestado);
         void setSd(int sd);
 
         bool registerUser(string username, string passwd);

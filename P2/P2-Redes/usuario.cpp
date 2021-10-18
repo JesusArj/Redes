@@ -13,14 +13,14 @@
         return sd;
     }
 
-    void usuario::setUsername(string username){
-        username = username;
+    void usuario::setUsername(string newusername){
+        username = newusername;
     }
-    void usuario::setPasswd(string passwd){
-        passwd = passwd;
+    void usuario::setPasswd(string newpasswd){
+        passwd = newpasswd;
     }
-    void usuario::setEstado(int estado){
-        estado = estado;
+    void usuario::setEstado(int newestado){
+        estado = newestado;
     }
     void usuario::setSd(int newsd){
         sd = newsd;
@@ -47,9 +47,13 @@
             if(file.is_open()){
                 while(getline(file,linea, ',') && !found){
                     if(linea==username){
-                        getline(file,linea, ',');
+                        getline(file,linea, '\n');
                         if(linea==passwd)
                             found = true;
+                    }
+                    else
+                    {
+                        getline(file,linea); 
                     }
                 }
                 file.close();   
@@ -68,6 +72,10 @@
             while(getline(file,linea, ',') && !found){
                 if(linea==username){
                     found = true;
+                }
+                else
+                {
+                    getline(file,linea); 
                 }
             }
             file.close();   

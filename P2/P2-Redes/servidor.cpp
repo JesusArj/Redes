@@ -214,18 +214,18 @@ int main ( )
                                 {
                                     sscanf(buffer, "USUARIO %s\n",args);
                                     string userName(args);
-                                    for(usuario user : usuariosVec){
+                                    for(auto it = usuariosVec.begin(); it!= usuariosVec.end(); it++){
                                        
-                                        if(user.getSd()==i){
+                                        if((*it).getSd()==i){
                                            
-                                            if(user.getEstado()==0){
-                                                if(user.userExist(userName))
+                                            if((*it).getEstado()==0){
+                                                if((*it).userExist(userName))
                                                 {
-                                                    user.setUsername(userName);
-                                                    user.setEstado(1);
+                                                    (*it).setUsername(args);
+                                                    (*it).setEstado(1);
                                                     bzero(buffer, sizeof(buffer));
-                                                    aux = &user.getUsername()[0];              
-                                                    sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",args);
+                                                    aux = &(*it).getUsername()[0];              
+                                                    sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",aux);
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
@@ -239,7 +239,7 @@ int main ( )
                                             }
                                            
                                         }
-                                        else{
+                                        else if(it== usuariosVec.end()-1){
                                             bzero(buffer, sizeof(buffer));              
                                             sprintf(identificador,"-Err. Usuario no encontrado");
                                             strcpy(buffer,identificador);
@@ -253,6 +253,10 @@ int main ( )
                                     string passwd(PasswdArg);
                                      for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
+                                            bzero(buffer, sizeof(buffer));
+                                            sprintf(identificador,"Estado = %i",user.getEstado());
+                                            strcpy(buffer,identificador);
+                                            send(i,buffer,sizeof(buffer),0);
                                             if(user.getEstado()==1)
                                             {
                                                 if(user.login(user.getUsername(), passwd))
