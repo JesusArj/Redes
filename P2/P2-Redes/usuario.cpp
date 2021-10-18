@@ -22,8 +22,8 @@
     void usuario::setEstado(int estado){
         estado = estado;
     }
-    void usuario::setSd(int sd){
-        sd = sd;
+    void usuario::setSd(int newsd){
+        sd = newsd;
     }
 
     bool usuario::registerUser(string username, string passwd){

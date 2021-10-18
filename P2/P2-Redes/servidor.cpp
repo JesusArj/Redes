@@ -114,7 +114,8 @@ int main ( )
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
 	------------------------------------------------------------------------ */
-		while(1){
+		while(1)
+        {
             
             //Esperamos recibir mensajes de los clientes (nuevas conexiones o mensajes de los clientes ya conectados)
             
@@ -122,17 +123,22 @@ int main ( )
             
             salida = select(FD_SETSIZE,&auxfds,NULL,NULL,NULL);
             
-            if(salida > 0){
+            if(salida > 0)
+            {
                 
                 
-                for(i=0; i<FD_SETSIZE; i++){
+                for(i=0; i<FD_SETSIZE; i++)
+                {
                     
                     //Buscamos el socket por el que se ha establecido la comunicación
-                    if(FD_ISSET(i, &auxfds)) {
+                    if(FD_ISSET(i, &auxfds)) 
+                    {
                         
-                        if( i == sd){
+                        if( i == sd)
+                        {
                             
-                            if((new_sd = accept(sd, (struct sockaddr *)&from, &from_len)) == -1){
+                            if((new_sd = accept(sd, (struct sockaddr *)&from, &from_len)) == -1)
+                            {
                                 perror("Error aceptando peticiones");
                             }
                             else
@@ -160,15 +166,18 @@ int main ( )
                             
                             
                         }
-                        else if (i == 0){
+                        else if (i == 0)
+                        {
                             //Se ha introducido información de teclado
                             bzero(buffer, sizeof(buffer));
                             fgets(buffer, sizeof(buffer),stdin);
                             
                             //Controlar si se ha introducido "SALIR", cerrando todos los sockets y finalmente saliendo del servidor. (implementar)
-                            if(strcmp(buffer,"SALIR\n") == 0){
+                            if(strcmp(buffer,"SALIR\n") == 0)
+                            {
                              
-                                for (j = 0; j < numClientes; j++){
+                                for (j = 0; j < numClientes; j++)
+                                {
                                     bzero(buffer, sizeof(buffer));
                                     strcpy(buffer,"Desconexión servidor\n"); 
                                     send(arrayClientes[j],buffer , sizeof(buffer),0);
@@ -181,24 +190,29 @@ int main ( )
                                 close(sd);
                                 exit(-1);
                                 
-                            }else{
+                            }
+                            else
+                            {
                                 send(arrayClientes[j],buffer , sizeof(buffer),0);
                             }
                             
                         } 
-                        else{
+                        else
+                        {
                             bzero(buffer,sizeof(buffer));
                             recibidos = recv(i,buffer,sizeof(buffer),0);
                         
-                            if(recibidos > 0){
+                            if(recibidos > 0)
+                            {
                                 //comprobaciones                                
                                 string mensajeRec(buffer);
-
                                 if(mensajeRec.find("USUARIO ")==0)
                                 {
-                                    string userName = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                    string userName = mensajeRec.substr(mensajeRec.find(" ")+1,mensajeRec.find(mensajeRec.find("\n")));
                                     for(usuario user : usuariosVec){
+                                       
                                         if(user.getSd()==i){
+                                           
                                             if(user.getEstado()==0){
                                                 if(user.userExist(userName))
                                                 {
@@ -211,7 +225,8 @@ int main ( )
                                                 send(i,buffer,sizeof(buffer),0);
                                                 }
                                             }
-                                            else{
+                                            else
+                                            {
                                                 bzero(buffer, sizeof(buffer));              
                                                 sprintf(identificador,"-Err. Accion no permitida");
                                                 strcpy(buffer,identificador);
@@ -630,31 +645,31 @@ int main ( )
                     }
                 }
             }
-            if(enEspera.size() >=2 && numGames<MAX_GAMES)
+        if(enEspera.size() >=2 && numGames<MAX_GAMES)
+        {
+            auto it=enEspera.begin(); 
+            auto SDAux1 = it; 
+            it++; 
+            auto SDAux2 = it;
+            for(int i=0; i<2; i++)
             {
-                auto it=enEspera.begin(); 
-                auto SDAux1 = it; 
-                it++; 
-                auto SDAux2 = it;
-                for(int i=0; i<2; i++)
-                {
-                    enEspera.pop_front();
-                }  
-                usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
-                usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
-                partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
-                nuevaPartida.pickRefran();
-                nuevaPartida.ocultarRefran();
-                nuevaPartida.setTurno(SDAux1->getSd());
-                partidasVec.push_back(nuevaPartida); 
-                numGames++; 
-                bzero(buffer, sizeof(buffer));
-                sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
-                strcpy(buffer,identificador);
-                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
-                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
-            }
-		}
+                enEspera.pop_front();
+            }  
+            usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(5);
+            usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(5);
+            partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
+            nuevaPartida.pickRefran();
+            nuevaPartida.ocultarRefran();
+            nuevaPartida.setTurno(SDAux1->getSd());
+            partidasVec.push_back(nuevaPartida); 
+            numGames++; 
+            bzero(buffer, sizeof(buffer));
+            sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
+            strcpy(buffer,identificador);
+            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
+        }
+	}
 
 	close(sd);
 	return 0;
