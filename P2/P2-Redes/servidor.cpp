@@ -43,7 +43,11 @@ int main ( )
     int salida;
     int arrayClientes[MAX_CLIENTS];
     int numClientes = 0;
-    int numGames=0; 
+    int numGames=0;
+    char comando[20];
+    char args[25];
+    char fraseArg[200];
+    char PasswdArg[25];
     char * aux; //para los string to char *
     vector<usuario> usuariosVec;
     vector<partida> partidasVec;
@@ -208,7 +212,8 @@ int main ( )
                                 string mensajeRec(buffer);
                                 if(mensajeRec.find("USUARIO ")==0)
                                 {
-                                    string userName = mensajeRec.substr(mensajeRec.find(" ")+1,mensajeRec.find(mensajeRec.find("\n")));
+                                    sscanf(buffer, "USUARIO %s\n",args);
+                                    string userName(args);
                                     for(usuario user : usuariosVec){
                                        
                                         if(user.getSd()==i){
@@ -216,13 +221,13 @@ int main ( )
                                             if(user.getEstado()==0){
                                                 if(user.userExist(userName))
                                                 {
-                                                user.setUsername(userName);
-                                                user.setEstado(user.getEstado()+1);
-                                                bzero(buffer, sizeof(buffer));
-                                                aux = &user.getUsername()[0];              
-                                                sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",aux);
-                                                strcpy(buffer,identificador);
-                                                send(i,buffer,sizeof(buffer),0);
+                                                    user.setUsername(userName);
+                                                    user.setEstado(1);
+                                                    bzero(buffer, sizeof(buffer));
+                                                    aux = &user.getUsername()[0];              
+                                                    sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",args);
+                                                    strcpy(buffer,identificador);
+                                                    send(i,buffer,sizeof(buffer),0);
                                                 }
                                             }
                                             else
@@ -241,10 +246,11 @@ int main ( )
                                             send(i,buffer,sizeof(buffer),0);
                                         }
                                     }
-    
+
                                 }else if(mensajeRec.find("PASSWORD ")==0)
                                 {
-                                    string passwd = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                    sscanf(buffer, "PASSWORD %s\n",PasswdArg);
+                                    string passwd(PasswdArg);
                                      for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             if(user.getEstado()==1)
@@ -278,8 +284,9 @@ int main ( )
                                     }
     
                                 }else if(mensajeRec.find("REGISTER -u ")==0){
-                                    string username = mensajeRec.substr(mensajeRec.find(" -u "),mensajeRec.find(mensajeRec.find(" -p ")));
-                                    string passwd = mensajeRec.substr(mensajeRec.find(" -p "),mensajeRec.find(mensajeRec.find("\n")));
+                                    sscanf(buffer, "USUARIO -u %s -p %s\n",args, PasswdArg);
+                                    string username(args);
+                                    string passwd(PasswdArg);
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             if(user.getEstado()==0)
@@ -334,7 +341,8 @@ int main ( )
                                             if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
                                                 partida p = partidasVec[pos];
                                                 if(p.getTurno() == i){
-                                                    string consonante = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    sscanf(buffer, "CONSONANTE %s\n",args);
+                                                    string consonante(args);
                                                     if(consonante.size() == 1){
                                                         char cons = (char)consonante[0];
                                                         if(isalpha(cons)){
@@ -437,7 +445,8 @@ int main ( )
                                             if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
                                                 partida p = partidasVec[pos];
                                                 if(p.getTurno() == i){
-                                                    string vocal = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    sscanf(buffer, "VOCAL %s\n",args);
+                                                    string vocal(args);
                                                     if(vocal.size() == 1){
                                                         char voc = (char)vocal[0];
                                                         if(isalpha(voc)) {
@@ -543,7 +552,8 @@ int main ( )
                                             if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
                                                 partida p = partidasVec[pos];
                                                 if(p.getTurno() == i){
-                                                    string refran = mensajeRec.substr(mensajeRec.find(" "),mensajeRec.find(mensajeRec.find("\n")));
+                                                    sscanf(buffer, "RESOLVER %s\n",fraseArg);
+                                                    string refran(fraseArg);
                                                     p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                     if(p.resolverRefran(refran)){
                                                         bzero(buffer, sizeof(buffer));         
@@ -626,12 +636,14 @@ int main ( )
                                 else if(mensajeRec.find("SALIR") == 0){
                                     salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                                 }
+                                /*
                                 else {
                                     bzero(buffer, sizeof(buffer));              
                                     sprintf(identificador,"-Err.");
                                     strcpy(buffer,identificador);
                                     send(i,buffer,sizeof(buffer),0);
-                                }                           
+                                }   
+                                */                        
                                 
                             }
                             //Si el cliente introdujo ctrl+c
