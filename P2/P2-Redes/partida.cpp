@@ -21,7 +21,7 @@ void partida::ocultarRefran(){
     for(int i=0; i<refranResuelto.size(); i++){
         if(isalpha(refranResuelto[i])){
             oculto+="_";
-        }else if(refranResuelto[i]==" "){
+        }else if(refranResuelto[i]==' '){
             oculto+= " ";
         }
     }
