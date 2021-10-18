@@ -33,7 +33,6 @@ bool partida::resolverRefran(string refranIntento){
         intento = true;
     return intento;
 }
-//TODO Revisar paso por referencia
 bool partida::comprarVocales(char vocal, int sd){
     bool cambio = false;
     char space = ' ', end = '\0';
@@ -46,7 +45,6 @@ bool partida::comprarVocales(char vocal, int sd){
     }
     return cambio;
 }
-//TODO Revisar paso por referencia
 bool partida::rellenarConsonantes(char consonante, int sd){
     int puntosOld = puntos[sd];
     char space = ' ', end = '\0';
