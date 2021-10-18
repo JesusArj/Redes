@@ -71,7 +71,7 @@ int main (int argc, char* argv[])
 
     cout<<"Estas son las acciones que puede realizar.\n";
 	cout<<"Iniciar sesión.\n\t Para ello debe escribir USUARIO <suUsuario> y luego PASSWORD <suPasswd>."<<endl;
-	cout<<"Registrarse.\n\t Para ello debe escribir REGISTRO -u <suUsuario> -p <suPasswd>."<<endl;
+	cout<<"Registrarse.\n\t Para ello debe escribir REGISTER -u <suUsuario> -p <suPasswd>."<<endl;
 	cout<<"Iniciar partida si ya está dentro del sistema.\n\t Para ello debe escribir INICIAR-PARTIDA."<<endl;
 	cout<<"Comprar una vocal.\n\t Para ello debe escribir VOCAL <vocal>."<<endl;
 	cout<<"Elegir una consonante.\n\t Para ello debe escribir CONSONANTE <consonante>."<<endl;

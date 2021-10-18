@@ -130,7 +130,6 @@ int main ( )
             if(salida > 0)
             {
                 
-                
                 for(i=0; i<FD_SETSIZE; i++)
                 {
                     
@@ -247,7 +246,8 @@ int main ( )
                                         }
                                     }
 
-                                }else if(mensajeRec.find("PASSWORD ")==0)
+                                }
+                                else if(mensajeRec.find("PASSWORD ")==0)
                                 {
                                     sscanf(buffer, "PASSWORD %s\n",PasswdArg);
                                     string passwd(PasswdArg);
@@ -283,8 +283,10 @@ int main ( )
                                         }
                                     }
     
-                                }else if(mensajeRec.find("REGISTER -u ")==0){
-                                    sscanf(buffer, "USUARIO -u %s -p %s\n",args, PasswdArg);
+                                }
+                                else if(mensajeRec.find("REGISTER -u ")==0)
+                                {
+                                    sscanf(buffer, "REGISTER -u %s -p %s\n",args, PasswdArg);
                                     string username(args);
                                     string passwd(PasswdArg);
                                     for(usuario user : usuariosVec){
@@ -319,7 +321,9 @@ int main ( )
                                             }    
                                         }
                                     }
-                                }else if(mensajeRec.find("INICIAR-PARTIDA")==0){
+                                }
+                                else if(mensajeRec.find("INICIAR-PARTIDA")==0)
+                                {
                                     
                                     for(auto it = usuariosVec.begin(); it!=usuariosVec.end(); it++){
                                         if((*it).getSd() == i){
@@ -330,7 +334,7 @@ int main ( )
                                             send(i,buffer,sizeof(buffer),0);
                                         }
                                         if((*it).getEstado() == 3){
-                                            enEspera.push_back((*it));
+                                            enEspera.push_back(*it);
                                             bzero(buffer, sizeof(buffer));              
                                             aux = &(*it).getUsername()[0]; 
                                             sprintf(identificador,"%s , ha sido añadido a la cola de espera", aux);
@@ -339,7 +343,9 @@ int main ( )
                                         }
                                     }
                                 
-                                }else if(mensajeRec.find("CONSONANTE ")==0){
+                                }
+                                else if(mensajeRec.find("CONSONANTE ")==0)
+                                {
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             int pos;
@@ -443,7 +449,9 @@ int main ( )
                                         }
                                     }                                        
                                     
-                                }else if(mensajeRec.find("VOCAL ")==0){
+                                }
+                                else if(mensajeRec.find("VOCAL ")==0)
+                                {
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             int pos;
@@ -549,8 +557,9 @@ int main ( )
                                         }
                                     }  
 
-                                }else if(mensajeRec.find("RESOLVER ")==0){
-
+                                }
+                                else if(mensajeRec.find("RESOLVER ")==0)
+                                {
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             int pos;
@@ -609,7 +618,9 @@ int main ( )
                                         }
                                     }
 
-                                }else if(mensajeRec.find("PUNTUACION")==0){
+                                }
+                                else if(mensajeRec.find("PUNTUACION")==0)
+                                {
                                     for(usuario user : usuariosVec){
                                         if(user.getSd()==i){
                                             int pos;
@@ -641,14 +652,14 @@ int main ( )
                                 else if(mensajeRec.find("SALIR") == 0){
                                     salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                                 }
-                                /*
+                                
                                 else {
                                     bzero(buffer, sizeof(buffer));              
                                     sprintf(identificador,"-Err.");
                                     strcpy(buffer,identificador);
                                     send(i,buffer,sizeof(buffer),0);
                                 }   
-                                */                        
+                                                        
                                 
                             }
                             //Si el cliente introdujo ctrl+c
@@ -662,31 +673,31 @@ int main ( )
                     }
                 }
             }
-        if(enEspera.size() >=2 && numGames<MAX_GAMES)
-        {
-            auto it=enEspera.begin(); 
-            auto SDAux1 = it; 
-            it++; 
-            auto SDAux2 = it;
-            for(int i=0; i<2; i++)
+            if(enEspera.size() >=2 && numGames<MAX_GAMES)
             {
-                enEspera.pop_front();
-            }  
-            usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(4);
-            usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(4);
-            partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
-            nuevaPartida.pickRefran();
-            nuevaPartida.ocultarRefran();
-            nuevaPartida.setTurno(SDAux1->getSd());
-            partidasVec.push_back(nuevaPartida); 
-            numGames++; 
-            bzero(buffer, sizeof(buffer));
-            sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
-            strcpy(buffer,identificador);
-            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
-            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
-        }
-	}
+                auto it=enEspera.begin(); 
+                auto SDAux1 = it; 
+                it++; 
+                auto SDAux2 = it;
+                for(int i=0; i<2; i++)
+                {
+                    enEspera.pop_front();
+                }  
+                usuariosVec[buscarPosicionUsuario(SDAux1->getSd(), usuariosVec)].setEstado(4);
+                usuariosVec[buscarPosicionUsuario(SDAux2->getSd(), usuariosVec)].setEstado(4);
+                partida nuevaPartida(SDAux1->getSd(), SDAux2->getSd(), SDAux1->getUsername(), SDAux2->getUsername());
+                nuevaPartida.pickRefran();
+                nuevaPartida.ocultarRefran();
+                nuevaPartida.setTurno(SDAux1->getSd());
+                partidasVec.push_back(nuevaPartida); 
+                numGames++; 
+                bzero(buffer, sizeof(buffer));
+                sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
+                strcpy(buffer,identificador);
+                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0);
+            }
+	    }
 
 	close(sd);
 	return 0;
