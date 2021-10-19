@@ -366,7 +366,7 @@ int main ( )
                                                                 p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                                 if(p.rellenarConsonantes(cons,pos)){
                                                                     if(p.getRefranResuelto() == p.getRefranOculto()){
-                                                                        bzero(buffer, sizeof(buffer));           
+                                                                        bzero(buffer, sizeof(buffer));     
                                                                         aux = &p.getRefranResuelto()[0];    
                                                                         sprintf(identificador,"Correcto. El refran es : %s", aux);
                                                                         strcpy(buffer,identificador);
@@ -385,7 +385,7 @@ int main ( )
                                                                     }
                                                                     else{
                                                                         bzero(buffer, sizeof(buffer)); 
-                                                                        aux = &p.getRefranOculto()[0];              
+                                                                        aux = &p.getRefranResuelto()[0];              
                                                                         sprintf(identificador,"El refran actual : %s", aux);
                                                                         strcpy(buffer,identificador);
                                                                         send(p.getSockets()[0],buffer,sizeof(buffer),0);
@@ -576,7 +576,7 @@ int main ( )
                                                     p.getTurno() == p.getSockets()[0] ? pos = 0 : pos =1;
                                                     if(p.resolverRefran(refran)){
                                                         bzero(buffer, sizeof(buffer));         
-                                                        aux = &p.getRefranResuelto()[0];      
+                                                        aux = &p.getRefranOculto()[0];      
                                                         sprintf(identificador,"Correcto. El refran es : %s", aux);
                                                         strcpy(buffer,identificador);
                                                         send(p.getSockets()[0],buffer,sizeof(buffer),0);
@@ -588,8 +588,8 @@ int main ( )
                                                         send(p.getSockets()[0],buffer,sizeof(buffer),0);
                                                         send(p.getSockets()[1],buffer,sizeof(buffer),0);
 
+                                                        usuariosVec[buscarPosicionUsuario(p.getSockets()[0],usuariosVec)].setEstado(3);
                                                         usuariosVec[buscarPosicionUsuario(p.getSockets()[1],usuariosVec)].setEstado(3);
-                                                        usuariosVec[buscarPosicionUsuario(p.getSockets()[2],usuariosVec)].setEstado(3);
                                                         partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(p.getSockets()[0], partidasVec)); 
 
 
@@ -702,6 +702,8 @@ int main ( )
             partida nuevaPartida(sd1,sd2,user1,user2); 
             cout<< nuevaPartida.getSockets()[0]<<endl; 
             cout<< nuevaPartida.getSockets()[1]<<endl;
+            nuevaPartida.pickRefran(); 
+            cout<< nuevaPartida.getRefranResuelto(); 
             nuevaPartida.ocultarRefran(); 
             nuevaPartida.setTurno(sd1);
             partidasVec.push_back(nuevaPartida); 

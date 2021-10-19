@@ -4,7 +4,6 @@ partida::partida(int sd1, int sd2,string j1, string j2){
     setSockets(sd1,sd2);
     setJugadores(j1,j2);
     setPuntos(0,0);
-    pickRefran(); 
 }
 
 string Refran[] = {
@@ -14,7 +13,7 @@ string Refran[] = {
 void partida::pickRefran()
 {
     srand(time(NULL));
-    refranResuelto = Refran[rand() % 30];
+    this->setRefranResuelto(Refran[rand() % 30]+'\n');
 }
 void partida::ocultarRefran(){
     string oculto;
