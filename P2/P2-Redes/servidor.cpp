@@ -226,6 +226,7 @@ int main ( )
                                                     sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",aux);
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
+                                                    break; 
                                                 }
                                             }
                                             else
@@ -250,19 +251,20 @@ int main ( )
                                 {
                                     sscanf(buffer, "PASSWORD %s\n",PasswdArg);
                                     string passwd(PasswdArg);
-                                     for(usuario user : usuariosVec){
-                                        if(user.getSd()==i){
-                                            if(user.getEstado()==1)
+                                     for(auto it=usuariosVec.begin(); it!=usuariosVec.end(); it++){
+                                        if((*it).getSd()==i){
+                                            if((*it).getEstado()==1)
                                             {
-                                                if(user.login(user.getUsername(), passwd))
+                                                if((*it).login((*it).getUsername(), passwd))
                                                 {
-                                                    user.setPasswd(passwd);
-                                                    user.setEstado(user.getEstado()+1);
+                                                    (*it).setPasswd(passwd);
+                                                    (*it).setEstado(2);
                                                     bzero(buffer, sizeof(buffer));              
-                                                    aux = &user.getUsername()[0]; 
+                                                    aux = &(*it).getUsername()[0]; 
                                                     sprintf(identificador,"Bienvenido %s a la Ruleta de la fortuna.",aux);
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
+                                                    break; 
                                                 }
                                                 else
                                                 {
@@ -326,19 +328,23 @@ int main ( )
                                     
                                     for(auto it = usuariosVec.begin(); it!=usuariosVec.end(); it++){
                                         if((*it).getSd() == i){
-                                            (*it).setEstado(3);
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(identificador,"Estado= %i", (*it).getEstado());
-                                            strcpy(buffer,identificador);
-                                            send(i,buffer,sizeof(buffer),0);
+                                            if((*it).getEstado()==2)
+                                            { 
+                                                (*it).setEstado(3);
+                                                enEspera.push_back(*it);
+                                                bzero(buffer, sizeof(buffer));              
+                                                aux = &(*it).getUsername()[0]; 
+                                                sprintf(identificador,"%s , ha sido añadido a la cola de espera", aux);
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0);
+                                            }
                                         }
-                                        if((*it).getEstado() == 3){
-                                            enEspera.push_back(*it);
-                                            bzero(buffer, sizeof(buffer));              
-                                            aux = &(*it).getUsername()[0]; 
-                                            sprintf(identificador,"%s , ha sido añadido a la cola de espera", aux);
+                                        else if ((*it).getSd() == i && (*it).getEstado()!=2)
+                                        {
+                                            bzero(buffer, sizeof(buffer)); 
+                                            sprintf(identificador,"-Err Accion no permitida");
                                             strcpy(buffer,identificador);
-                                            send(i,buffer,sizeof(buffer),0);
+                                            send(i,buffer,sizeof(buffer),0); 
                                         }
                                     }
                                 
@@ -349,7 +355,7 @@ int main ( )
                                         if(user.getSd()==i){
                                             int pos;
                                             if((pos = buscarPosicionPartida(i,partidasVec)) != 11){
-                                                partida p = partidasVec[pos];
+                                                partida p = partidasVec[pos];  
                                                 if(p.getTurno() == i){
                                                     sscanf(buffer, "CONSONANTE %s\n",args);
                                                     string consonante(args);
@@ -683,7 +689,6 @@ int main ( )
             {
                 enEspera.pop_front();
             }
-            cout<<"He entrado\n"; 
             int sd1 = SDAux1->getSd();
             int sd2 = SDAux2->getSd();
             
@@ -693,15 +698,17 @@ int main ( )
             int pos2 = buscarPosicionUsuario(sd2, usuariosVec);
             
             usuariosVec[pos1].setEstado(4);
-            usuariosVec[pos2].setEstado(4);
-            
+            usuariosVec[pos2].setEstado(4); 
             partida nuevaPartida(sd1,sd2,user1,user2); 
+            cout<< nuevaPartida.getSockets()[0]<<endl; 
+            cout<< nuevaPartida.getSockets()[1]<<endl;
             nuevaPartida.ocultarRefran(); 
             nuevaPartida.setTurno(sd1);
             partidasVec.push_back(nuevaPartida); 
             numGames++; 
             bzero(buffer, sizeof(buffer));
-            sprintf(identificador,"La partida va a comenzar. Es el turno de %d",nuevaPartida.getSockets()[0]);
+            aux= &nuevaPartida.getJugadores()[0][0];
+            sprintf(identificador,"La partida va a comenzar. Es el turno de %s",aux);
             strcpy(buffer,identificador);
             send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
             send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 

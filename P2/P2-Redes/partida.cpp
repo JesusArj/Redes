@@ -99,7 +99,7 @@ void partida::setRefranOculto(string refran){
 }
 void partida::setSockets(int sd1, int sd2){
     sockets[0]=sd1;
-    sockets[1]=sd1;
+    sockets[1]=sd2;
 }
 void partida::setJugadores(string jugador1, string jugador2){
     jugadores[0]=jugador1;
