@@ -1,7 +1,7 @@
 #include "frases.h"
 
 bool isVowel(char vocal){
-    return (vocal=='a' || vocal=='e' || vocal=='i' || vocal=='o' || vocal=='u');
+    return (vocal=='A' || vocal=='E' || vocal=='I' || vocal=='O' || vocal=='U');
 }
 
 bool isConsonant(char consonant){

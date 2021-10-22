@@ -28,6 +28,7 @@ class partida {
         void pickRefran(); 
         void ocultarRefran();
         bool comprarVocales(char vocal, int puntos );
+        bool comprobarVocales(char vocal); 
         bool resolverRefran(string refranIntento);
         bool rellenarConsonantes(char consonante, int puntos );
 
