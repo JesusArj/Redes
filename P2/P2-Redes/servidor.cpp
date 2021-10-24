@@ -773,7 +773,7 @@ int main ( )
                 numGames++; 
                 bzero(buffer, sizeof(buffer));
                 aux= &nuevaPartida.getJugadores()[0][0];
-                sprintf(identificador,"+Ok. La partida va a comenzar. Frase: %s.", nuevaPartida.getRefranOculto().c_str());
+                sprintf(identificador,"+Ok. La partida va a comenzar. Frase: %s", nuevaPartida.getRefranOculto().c_str());
                 strcpy(buffer,identificador);
                 send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
                 send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
