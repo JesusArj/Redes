@@ -28,7 +28,7 @@ using namespace std;
 void manejador(int signum);
 int buscarPosicionPartida(int sd, vector<partida> v);
 int buscarPosicionUsuario(int sd, vector<usuario> v);
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> p, vector<usuario> u);
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> &p, vector<usuario> &u);
 
 int main ( )
 {
@@ -695,7 +695,7 @@ int main ( )
                             {
                                 printf("El socket %d, ha introducido ctrl+c\n", i);
                                 //Eliminar ese socket
-                                salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
+                                salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes, partidasVec, usuariosVec);
                             }
                         }
                     }
@@ -750,7 +750,7 @@ int main ( )
 	
 }
 
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> p, vector<usuario> u){
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida>& p, vector<usuario>& u){
   
     char buffer[250];
     int j;
