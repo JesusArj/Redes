@@ -678,13 +678,15 @@ int main ( )
                                         }
                                     }
                                 }
-                                else if(mensajeRec.find("SALIR") == 0){
+                                else if(mensajeRec.find("SALIR") == 0)
+                                {
                                     salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                                 }
                                 
-                                else {
+                                else
+                                {
                                     bzero(buffer, sizeof(buffer));              
-                                    sprintf(identificador,"-Err.");
+                                    sprintf(identificador,"-Err. Solicitud rechazada.");
                                     strcpy(buffer,identificador);
                                     send(i,buffer,sizeof(buffer),0);
                                 } 
@@ -703,44 +705,44 @@ int main ( )
             }
             if(!enEspera.empty()  && enEspera.size() >=2 && numGames<MAX_GAMES)
             {
-            auto it=enEspera.begin(); 
-            auto SDAux1 = it; 
-            it++; 
-            auto SDAux2 = it;
-            for(int i=0; i<2; i++)
-            {
-                enEspera.pop_front();
-            }
-            int sd1 = SDAux1->getSd();
-            int sd2 = SDAux2->getSd();
-            
-            string user1 = SDAux1->getUsername();
-            string user2 = SDAux2->getUsername();
-            int pos1 = buscarPosicionUsuario(sd1, usuariosVec);
-            int pos2 = buscarPosicionUsuario(sd2, usuariosVec);
-            
-            usuariosVec[pos1].setEstado(4);
-            usuariosVec[pos2].setEstado(4); 
-            partida nuevaPartida(sd1,sd2,user1,user2); 
-            cout<< nuevaPartida.getSockets()[0]<<endl; 
-            cout<< nuevaPartida.getSockets()[1]<<endl;
-            nuevaPartida.pickRefran(); 
-            cout<< nuevaPartida.getRefranResuelto(); 
-            nuevaPartida.ocultarRefran(); 
-            nuevaPartida.setTurno(sd1);
-            partidasVec.push_back(nuevaPartida); 
-            numGames++; 
-            bzero(buffer, sizeof(buffer));
-            aux= &nuevaPartida.getJugadores()[0][0];
-            sprintf(identificador,"+Ok. La partida va a comenzar. Frase: %s.", nuevaPartida.getRefranOculto().c_str());
-            strcpy(buffer,identificador);
-            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
-            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
+                auto it=enEspera.begin(); 
+                auto SDAux1 = it; 
+                it++; 
+                auto SDAux2 = it;
+                for(int i=0; i<2; i++)
+                {
+                    enEspera.pop_front();
+                }
+                int sd1 = SDAux1->getSd();
+                int sd2 = SDAux2->getSd();
+                
+                string user1 = SDAux1->getUsername();
+                string user2 = SDAux2->getUsername();
+                int pos1 = buscarPosicionUsuario(sd1, usuariosVec);
+                int pos2 = buscarPosicionUsuario(sd2, usuariosVec);
+                
+                usuariosVec[pos1].setEstado(4);
+                usuariosVec[pos2].setEstado(4); 
+                partida nuevaPartida(sd1,sd2,user1,user2); 
+                cout<< nuevaPartida.getSockets()[0]<<endl; 
+                cout<< nuevaPartida.getSockets()[1]<<endl;
+                nuevaPartida.pickRefran(); 
+                cout<< nuevaPartida.getRefranResuelto(); 
+                nuevaPartida.ocultarRefran(); 
+                nuevaPartida.setTurno(sd1);
+                partidasVec.push_back(nuevaPartida); 
+                numGames++; 
+                bzero(buffer, sizeof(buffer));
+                aux= &nuevaPartida.getJugadores()[0][0];
+                sprintf(identificador,"+Ok. La partida va a comenzar. Frase: %s.", nuevaPartida.getRefranOculto().c_str());
+                strcpy(buffer,identificador);
+                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
 
-            sprintf(identificador,"+Ok. Es el turno de %s.", aux);
-            strcpy(buffer,identificador);
-            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
-            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
+                sprintf(identificador,"+Ok. Es el turno de %s.", aux);
+                strcpy(buffer,identificador);
+                send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+                send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
             }
             
 	    }
@@ -774,17 +776,17 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
         int pos = buscarPosicionPartida(socket, p);
         if(socket==p[pos].getSockets()[1])
         {
-            send(p[pos].getSockets()[0], buffer, sizeof(buffer), 0);
-            //le ponemos al otro usuario el estado = 3
+            //le ponemos al otro usuario el estado = 2
             int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[0] ,u); 
-            u[auxPosi].setEstado(3); 
+            u[auxPosi].setEstado(2); 
+            send(p[pos].getSockets()[0], buffer, sizeof(buffer), 0);
         }
         else if(socket==p[pos].getSockets()[0])
         {
-            send(p[pos].getSockets()[1], buffer, sizeof(buffer), 0); 
-            //le ponemos al otro usuario el estado = 3
+            //le ponemos al otro usuario el estado = 2
             int auxPosi = buscarPosicionUsuario(p[pos].getSockets()[1] ,u); 
-            u[auxPosi].setEstado(3); 
+            u[auxPosi].setEstado(2); 
+            send(p[pos].getSockets()[1], buffer, sizeof(buffer), 0); 
         }
         //terminamos la partida y decrementamos el numgames
         p.erase(p.begin() + pos); 
