@@ -64,6 +64,7 @@
             return false;
         }
     }
+    
     bool usuario::userExist(string username){
         ifstream file("login.txt");
         string linea;
@@ -81,4 +82,12 @@
             file.close();   
         }
         return found;
+    }
+
+    bool isLogged(string username, vector<usuario> vec){
+        for(auto it = vec.begin(); it!= vec.end(); it++){
+            if(username.compare((*it).getUsername()) == 0)
+                return true;            
+        }
+        return false;
     }

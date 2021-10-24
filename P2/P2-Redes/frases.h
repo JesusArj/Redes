@@ -13,4 +13,5 @@ using namespace std;
 bool isVowel(char vocal);
 
 bool isConsonant(char consonant);
+
 #endif

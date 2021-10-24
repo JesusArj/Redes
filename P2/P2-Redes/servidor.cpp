@@ -19,6 +19,7 @@
 #define MAX_CLIENTS 30
 #define MAX_GAMES 10
 
+using namespace std;
 
 /*
  * El servidor ofrece el servicio de un chat
@@ -152,7 +153,7 @@ int main ( )
                                     usuario u(new_sd,0);
                                     usuariosVec.push_back(u);
                                 
-                                    strcpy(buffer, "Bienvenido al sistema\n");
+                                    strcpy(buffer, "+Ok. Usuario conectado\n");
                                 
                                     send(new_sd,buffer,sizeof(buffer),0);
                                 }
@@ -214,32 +215,47 @@ int main ( )
                                     string userName(args);
                                     for(auto it = usuariosVec.begin(); it!= usuariosVec.end(); it++){
                                         if((*it).getSd()==i){
-                                           
-                                            if((*it).getEstado()==0){
+                                            if(!isLogged(userName, usuariosVec)){
                                                 if((*it).userExist(userName))
                                                 {
-                                                    (*it).setUsername(args);
-                                                    (*it).setEstado(1);
-                                                    bzero(buffer, sizeof(buffer));
-                                                    aux = &(*it).getUsername()[0];              
-                                                    sprintf(identificador,"Bienvenido %s, introduzca su contraseña.",aux);
+                                                    if((*it).getEstado()==0) 
+                                                    {
+                                                        (*it).setUsername(args);
+                                                        (*it).setEstado(1);
+                                                        bzero(buffer, sizeof(buffer));
+                                                        aux = &(*it).getUsername()[0];              
+                                                        sprintf(identificador,"+Ok. Usuario correcto. Bienvenido, %s, introduzca su contraseña.",aux);
+                                                        strcpy(buffer,identificador);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                        break; 
+                                                    }
+                                                    else
+                                                    {
+                                                        bzero(buffer, sizeof(buffer));              
+                                                        sprintf(identificador,"-Err. Accion no permitida");
+                                                        strcpy(buffer,identificador);
+                                                        send(i,buffer,sizeof(buffer),0);
+                                                    }    
+                                                }
+                                                else
+                                                {
+                                                    bzero(buffer, sizeof(buffer));              
+                                                    sprintf(identificador,"-Err. Usuario no reconocido.");
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
-                                                    break; 
                                                 }
                                             }
                                             else
                                             {
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"-Err. Accion no permitida");
+                                                sprintf(identificador,"-Err. Usuario ya loggeado.");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
-                                           
                                         }
                                         else if(it== usuariosVec.end()-1){
                                             bzero(buffer, sizeof(buffer));              
-                                            sprintf(identificador,"-Err. Usuario no encontrado");
+                                            sprintf(identificador,"-Err. Usuario incorrecto");
                                             strcpy(buffer,identificador);
                                             send(i,buffer,sizeof(buffer),0);
                                         }
@@ -260,7 +276,7 @@ int main ( )
                                                     (*it).setEstado(2);
                                                     bzero(buffer, sizeof(buffer));              
                                                     aux = &(*it).getUsername()[0]; 
-                                                    sprintf(identificador,"Bienvenido %s a la Ruleta de la fortuna.",aux);
+                                                    sprintf(identificador,"+Ok. Usuario validado. Bienvenido %s al sistema.",aux);
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
                                                     break; 
@@ -268,7 +284,7 @@ int main ( )
                                                 else
                                                 {
                                                     bzero(buffer, sizeof(buffer));              
-                                                    sprintf(identificador,"-Err. Contrasena incorrecta");
+                                                    sprintf(identificador,"-Err. Error en la validacion.");
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
@@ -300,7 +316,7 @@ int main ( )
                                                     user.setEstado(user.getEstado()+2);
                                                     bzero(buffer, sizeof(buffer));    
                                                     aux = &user.getUsername()[0];           
-                                                    sprintf(identificador,"Bienvenido %s a la Ruleta de la fortuna.",aux);
+                                                    sprintf(identificador,"+Ok. Registro correcto. Bienvenido %s al sistema.",aux);
                                                     strcpy(buffer,identificador);
                                                     send(i,buffer,sizeof(buffer),0);
                                                 }
@@ -333,7 +349,7 @@ int main ( )
                                                 enEspera.push_back(*it);
                                                 bzero(buffer, sizeof(buffer));              
                                                 aux = &(*it).getUsername()[0]; 
-                                                sprintf(identificador,"%s , ha sido añadido a la cola de espera", aux);
+                                                sprintf(identificador,"+Ok. Peticion recibida, %s. Quedamos a la espera de mas jugadores.", aux);
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
@@ -361,17 +377,18 @@ int main ( )
                                                     string consonante(args);
                                                     if(consonante.size() == 1){
                                                         char cons = (char)consonante[0];
+                                                        cons = toupper(cons);
                                                         if(isalpha(cons) && isConsonant(cons)){
                                                             partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn=0 : turn = 1; 
                                                                 if(partidasVec[pos].rellenarConsonantes(cons,turn)){
-                                                                    if(partidasVec[pos].getRefranResuelto() == partidasVec[pos].getRefranOculto()){
+                                                                    if(partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0){
                                                                         bzero(buffer, sizeof(buffer));     
-                                                                        sprintf(identificador,"Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
+                                                                        sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
                                                                         strcpy(buffer,identificador);
                                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
                                                                         bzero(buffer, sizeof(buffer));              
-                                                                        sprintf(identificador,"Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
+                                                                        sprintf(identificador,"+Ok. Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
                                                                         strcpy(buffer,identificador);
                                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -383,13 +400,13 @@ int main ( )
                                                                     }
                                                                     else{ 
                                                                         bzero(buffer, sizeof(buffer));             
-                                                                        sprintf(identificador,"El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                        sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
                                                                         strcpy(buffer,identificador);
                                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
 
                                                                         bzero(buffer, sizeof(buffer));              
-                                                                        sprintf(identificador,"Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
+                                                                        sprintf(identificador,"+Ok. Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
                                                                         strcpy(buffer,identificador);
                                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -398,12 +415,12 @@ int main ( )
                                                                 }
                                                                 else{
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"La consonante %c no se encuentra en el refran", cons);
+                                                                    sprintf(identificador,"+Ok. La consonante %c no se encuentra en el refran", cons);
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0); 
                                                                     bzero(buffer, sizeof(buffer));               
-                                                                    sprintf(identificador,"El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                    sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -411,7 +428,7 @@ int main ( )
                                                                     partidasVec[pos].nextTurno();
                                                                     turn == 0 ? auxProximoTurno=1 : auxProximoTurno=0;
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
+                                                                    sprintf(identificador,"+Ok. Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -445,7 +462,7 @@ int main ( )
                                             }
                                             else{
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                sprintf(identificador,"-Err. Su partida aun no ha comenzado. Por favor, espere");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                                 break; 
@@ -477,17 +494,18 @@ int main ( )
                                                         string vocal(args);
                                                         if(vocal.size() == 1){
                                                             char voc = (char)vocal[0];
+                                                            voc = toupper(voc);
                                                             if(isalpha(voc) && isVowel(voc)) {
-                                                                if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto() == partidasVec[pos].getRefranOculto()){
+                                                                if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0){
                                                                     partidasVec[pos].comprarVocales(voc,turn); 
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
+                                                                    sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
 
                                                                     bzero(buffer, sizeof(buffer));          
-                                                                    sprintf(identificador,"Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
+                                                                    sprintf(identificador,"+Ok. Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -496,29 +514,29 @@ int main ( )
                                                                     usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[1],usuariosVec)].setEstado(2);
                                                                     partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(partidasVec[pos].getSockets()[0], partidasVec));
                                                                 }
-                                                                else if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto() != partidasVec[pos].getRefranOculto())
+                                                                else if(partidasVec[pos].comprobarVocales(voc))
                                                                 {
                                                                     partidasVec[pos].comprarVocales(voc,turn); 
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                    sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
 
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
+                                                                    sprintf(identificador,"+Ok. Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
                                                                 }
                                                                 else{
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"La vocal %c no se encuentra en el refran", voc);
+                                                                    sprintf(identificador,"+Ok. La vocal %c no se encuentra en el refran", voc);
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
                                                                     bzero(buffer, sizeof(buffer));    
-                                                                    sprintf(identificador,"El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                    sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -526,7 +544,7 @@ int main ( )
                                                                     partidasVec[pos].nextTurno();
                                                                     turn == 0 ? auxProximoTurno=1 : auxProximoTurno=0; 
                                                                     bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
+                                                                    sprintf(identificador,"+Ok. Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
                                                                     strcpy(buffer,identificador);
                                                                     send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -558,7 +576,7 @@ int main ( )
                                             }
                                             else{
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                sprintf(identificador,"-Err. Su partida aun no ha comenzado. Por favor, espere");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
@@ -578,15 +596,18 @@ int main ( )
                                                     string refran(buffer);
                                                     int posicion = refran.find(" "); 
                                                     refran = refran.substr(posicion+1);
+                                                    for_each(refran.begin(), refran.end(), [](char &c){
+                                                        c = ::toupper(c);
+                                                    });
                                                     partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn = 0 : turn =1;
                                                     if(partidasVec[pos].resolverRefran(refran)){
                                                         bzero(buffer, sizeof(buffer));     
-                                                        sprintf(identificador,"Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
+                                                        sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
                                                         strcpy(buffer,identificador);
                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
                                                         bzero(buffer, sizeof(buffer));             
-                                                        sprintf(identificador,"Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
+                                                        sprintf(identificador,"+Ok. Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
                                                         strcpy(buffer,identificador);
                                                         send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
                                                         send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
@@ -618,7 +639,7 @@ int main ( )
                                             }
                                             else{
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                sprintf(identificador,"-Err. Su partida aun no ha comenzado. Por favor, espere");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
@@ -637,7 +658,7 @@ int main ( )
                                                 if(p.getTurno() == i){
                                                     p.getTurno() == p.getSockets()[0] ? turn = 0 : turn =1;
                                                     bzero(buffer, sizeof(buffer));              
-                                                    sprintf(identificador,"Usted tiene %d puntos", p.getPuntos()[turn]);
+                                                    sprintf(identificador,"+Ok. Usted tiene %d puntos", p.getPuntos()[turn]);
                                                     strcpy(buffer,identificador);
                                                     send(p.getSockets()[turn],buffer,sizeof(buffer),0);
                                                 }
@@ -650,7 +671,7 @@ int main ( )
                                             }
                                             else{
                                                 bzero(buffer, sizeof(buffer));              
-                                                sprintf(identificador,"Su partida aun no ha comenzado. Por favor, espere");
+                                                sprintf(identificador,"-Err. Su partida aun no ha comenzado. Por favor, espere");
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
@@ -660,15 +681,13 @@ int main ( )
                                 else if(mensajeRec.find("SALIR") == 0){
                                     salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
                                 }
-                                /*
+                                
                                 else {
                                     bzero(buffer, sizeof(buffer));              
                                     sprintf(identificador,"-Err.");
                                     strcpy(buffer,identificador);
                                     send(i,buffer,sizeof(buffer),0);
                                 } 
-                                */  
-                                                        
                                 
                             }
                             //Si el cliente introdujo ctrl+c
@@ -713,7 +732,12 @@ int main ( )
             numGames++; 
             bzero(buffer, sizeof(buffer));
             aux= &nuevaPartida.getJugadores()[0][0];
-            sprintf(identificador,"La partida va a comenzar. Es el turno de %s",aux);
+            sprintf(identificador,"+Ok. La partida va a comenzar. Frase: %s.", nuevaPartida.getRefranOculto().c_str());
+            strcpy(buffer,identificador);
+            send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
+            send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 
+
+            sprintf(identificador,"+Ok. Es el turno de %s.", aux);
             strcpy(buffer,identificador);
             send(nuevaPartida.getSockets()[0],buffer,sizeof(buffer),0);
             send(nuevaPartida.getSockets()[1],buffer,sizeof(buffer),0); 

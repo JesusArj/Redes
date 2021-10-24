@@ -27,6 +27,9 @@ void partida::ocultarRefran(){
         {
             oculto+=","; 
         }
+        else if(refranResuelto[i] == '\n'){
+            oculto += "\n";
+        }
     }
     refranOculto = oculto;
 }

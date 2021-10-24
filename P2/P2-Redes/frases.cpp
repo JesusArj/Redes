@@ -7,3 +7,4 @@ bool isVowel(char vocal){
 bool isConsonant(char consonant){
     return (!isVowel(consonant));
 }
+

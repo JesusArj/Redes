@@ -40,5 +40,8 @@ class usuario{
 
 };
 
+bool isLogged(string username, vector<usuario> vec);
+
+
 
 #endif
