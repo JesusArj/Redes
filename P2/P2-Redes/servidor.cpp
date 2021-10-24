@@ -53,6 +53,7 @@ int main ( )
     vector<usuario> usuariosVec;
     vector<partida> partidasVec;
     list<usuario> enEspera; 
+    list<char> letrasDichas;
     //contadores
     int i,j,k;
     int recibidos;
@@ -379,9 +380,18 @@ int main ( )
                                                         char cons = (char)consonante[0];
                                                         cons = toupper(cons);
                                                         if(isalpha(cons) && isConsonant(cons)){
-                                                            partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn=0 : turn = 1; 
+                                                            partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn=0 : turn = 1;
+                                                            bool yaDicho = false;
+                                                            for(char c : letrasDichas){
+                                                                if(c==cons) 
+                                                                    yaDicho = true;
+                                                            }
+                                                            if(!yaDicho)
+                                                            {
                                                                 if(partidasVec[pos].rellenarConsonantes(cons,turn)){
-                                                                    if(partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0){
+                                                                    letrasDichas.push_back(cons);
+                                                                    if(partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0)
+                                                                    {
                                                                         bzero(buffer, sizeof(buffer));     
                                                                         sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
                                                                         strcpy(buffer,identificador);
@@ -398,7 +408,8 @@ int main ( )
                                                                         partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(partidasVec[pos].getSockets()[0], partidasVec));
                                                                         break; 
                                                                     }
-                                                                    else{ 
+                                                                    else
+                                                                    { 
                                                                         bzero(buffer, sizeof(buffer));             
                                                                         sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
                                                                         strcpy(buffer,identificador);
@@ -413,7 +424,8 @@ int main ( )
                                                                         break; 
                                                                     }
                                                                 }
-                                                                else{
+                                                                else
+                                                                {
                                                                     bzero(buffer, sizeof(buffer));              
                                                                     sprintf(identificador,"+Ok. La consonante %c no se encuentra en el refran", cons);
                                                                     strcpy(buffer,identificador);
@@ -434,6 +446,15 @@ int main ( )
                                                                     send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
                                                                     break; 
                                                                 }
+                                                            }
+                                                            else
+                                                            {
+                                                                bzero(buffer, sizeof(buffer));              
+                                                                sprintf(identificador,"-Err. La consonante aportada ya ha sido dicha.");
+                                                                strcpy(buffer,identificador);
+                                                                send(i,buffer,sizeof(buffer),0);
+                                                                break; 
+                                                            }
                                                         }
                                                         else
                                                         {
@@ -495,59 +516,77 @@ int main ( )
                                                         if(vocal.size() == 1){
                                                             char voc = (char)vocal[0];
                                                             voc = toupper(voc);
-                                                            if(isalpha(voc) && isVowel(voc)) {
-                                                                if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0){
-                                                                    partidasVec[pos].comprarVocales(voc,turn); 
-                                                                    bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
-
-                                                                    bzero(buffer, sizeof(buffer));          
-                                                                    sprintf(identificador,"+Ok. Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
-
-                                                                    usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[0],usuariosVec)].setEstado(2);
-                                                                    usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[1],usuariosVec)].setEstado(2);
-                                                                    partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(partidasVec[pos].getSockets()[0], partidasVec));
+                                                            if(isalpha(voc) && isVowel(voc)) 
+                                                            {
+                                                                bool yaDicho = false;
+                                                                for(char c : letrasDichas){
+                                                                    if(c==voc) 
+                                                                        yaDicho = true;
                                                                 }
-                                                                else if(partidasVec[pos].comprobarVocales(voc))
+                                                                if(!yaDicho)
                                                                 {
-                                                                    partidasVec[pos].comprarVocales(voc,turn); 
-                                                                    bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                    if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0)
+                                                                    {
+                                                                        letrasDichas.push_back(voc);
+                                                                        partidasVec[pos].comprarVocales(voc,turn); 
+                                                                        bzero(buffer, sizeof(buffer));              
+                                                                        sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
 
-                                                                    bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"+Ok. Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                        bzero(buffer, sizeof(buffer));          
+                                                                        sprintf(identificador,"+Ok. Partida finalizada. Ha ganado el jugador %s con %d puntos", partidasVec[pos].getJugadores()[turn].c_str(), partidasVec[pos].getPuntos()[turn]);
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                        usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[0],usuariosVec)].setEstado(2);
+                                                                        usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[1],usuariosVec)].setEstado(2);
+                                                                        partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(partidasVec[pos].getSockets()[0], partidasVec));
+                                                                        }
+                                                                    else if(partidasVec[pos].comprobarVocales(voc))
+                                                                    {
+                                                                        letrasDichas.push_back(voc);
+                                                                        partidasVec[pos].comprarVocales(voc,turn); 
+                                                                        bzero(buffer, sizeof(buffer));              
+                                                                        sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                        bzero(buffer, sizeof(buffer));              
+                                                                        sprintf(identificador,"+Ok. Sigue siendo el turno de %s", partidasVec[pos].getJugadores()[turn].c_str());
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                    }
+                                                                    else{
+                                                                        bzero(buffer, sizeof(buffer));              
+                                                                        sprintf(identificador,"+Ok. La vocal %c no se encuentra en el refran", voc);
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                        bzero(buffer, sizeof(buffer));    
+                                                                        sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+
+                                                                        partidasVec[pos].nextTurno();
+                                                                        turn == 0 ? auxProximoTurno=1 : auxProximoTurno=0; 
+                                                                        bzero(buffer, sizeof(buffer));              
+                                                                        sprintf(identificador,"+Ok. Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
+                                                                        strcpy(buffer,identificador);
+                                                                        send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
+                                                                        send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                    }
                                                                 }
                                                                 else{
-                                                                    bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"+Ok. La vocal %c no se encuentra en el refran", voc);
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
-                                                                    bzero(buffer, sizeof(buffer));    
-                                                                    sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
-
-                                                                    partidasVec[pos].nextTurno();
-                                                                    turn == 0 ? auxProximoTurno=1 : auxProximoTurno=0; 
-                                                                    bzero(buffer, sizeof(buffer));              
-                                                                    sprintf(identificador,"+Ok. Ahora es el turno de %s", partidasVec[pos].getJugadores()[auxProximoTurno].c_str());
-                                                                    strcpy(buffer,identificador);
-                                                                    send(partidasVec[pos].getSockets()[0],buffer,sizeof(buffer),0);
-                                                                    send(partidasVec[pos].getSockets()[1],buffer,sizeof(buffer),0);
+                                                                bzero(buffer, sizeof(buffer));              
+                                                                sprintf(identificador,"-Err. La vocal a comprar ya ha sido dicha.");
+                                                                strcpy(buffer,identificador);
+                                                                send(i,buffer,sizeof(buffer),0);
                                                                 }
                                                             }
                                                             else
@@ -600,7 +639,8 @@ int main ( )
                                                         c = ::toupper(c);
                                                     });
                                                     partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn = 0 : turn =1;
-                                                    if(partidasVec[pos].resolverRefran(refran)){
+                                                    if(partidasVec[pos].resolverRefran(refran))
+                                                    {
                                                         bzero(buffer, sizeof(buffer));     
                                                         sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
                                                         strcpy(buffer,identificador);
@@ -615,10 +655,9 @@ int main ( )
                                                         usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[0],usuariosVec)].setEstado(2);
                                                         usuariosVec[buscarPosicionUsuario(partidasVec[pos].getSockets()[1],usuariosVec)].setEstado(2);
                                                         partidasVec.erase(partidasVec.begin() + buscarPosicionPartida(partidasVec[pos].getSockets()[0], partidasVec)); 
-
-
                                                     }
-                                                    else{
+                                                    else
+                                                    {
                                                         bzero(buffer, sizeof(buffer));          
                                                         sprintf(identificador,"+Ok. Partida finalizada. Frase: %s. No se ha acertado la frase", partidasVec[pos].getRefranResuelto().c_str());
                                                         strcpy(buffer,identificador);
