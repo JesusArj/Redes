@@ -53,7 +53,6 @@ int main ( )
     vector<usuario> usuariosVec;
     vector<partida> partidasVec;
     list<usuario> enEspera; 
-    list<char> letrasDichas;
     //contadores
     int i,j,k;
     int recibidos;
@@ -381,15 +380,11 @@ int main ( )
                                                         cons = toupper(cons);
                                                         if(isalpha(cons) && isConsonant(cons)){
                                                             partidasVec[pos].getTurno() == partidasVec[pos].getSockets()[0] ? turn=0 : turn = 1;
-                                                            bool yaDicho = false;
-                                                            for(char c : letrasDichas){
-                                                                if(c==cons) 
-                                                                    yaDicho = true;
-                                                            }
+                                                            bool yaDicho = partidasVec[pos].letraDicha(cons);
                                                             if(!yaDicho)
                                                             {
                                                                 if(partidasVec[pos].rellenarConsonantes(cons,turn)){
-                                                                    letrasDichas.push_back(cons);
+                                                                    partidasVec[pos].decirLetra(cons);
                                                                     if(partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0)
                                                                     {
                                                                         bzero(buffer, sizeof(buffer));     
@@ -518,16 +513,12 @@ int main ( )
                                                             voc = toupper(voc);
                                                             if(isalpha(voc) && isVowel(voc)) 
                                                             {
-                                                                bool yaDicho = false;
-                                                                for(char c : letrasDichas){
-                                                                    if(c==voc) 
-                                                                        yaDicho = true;
-                                                                }
+                                                                bool yaDicho = partidasVec[pos].letraDicha(voc);
                                                                 if(!yaDicho)
                                                                 {
                                                                     if(partidasVec[pos].comprobarVocales(voc) && partidasVec[pos].getRefranResuelto().compare(partidasVec[pos].getRefranOculto())==0)
                                                                     {
-                                                                        letrasDichas.push_back(voc);
+                                                                        partidasVec[pos].decirLetra(voc);
                                                                         partidasVec[pos].comprarVocales(voc,turn); 
                                                                         bzero(buffer, sizeof(buffer));              
                                                                         sprintf(identificador,"+Ok. Correcto. El refran es : %s", partidasVec[pos].getRefranResuelto().c_str());
@@ -547,7 +538,7 @@ int main ( )
                                                                         }
                                                                     else if(partidasVec[pos].comprobarVocales(voc))
                                                                     {
-                                                                        letrasDichas.push_back(voc);
+                                                                        partidasVec[pos].decirLetra(voc);
                                                                         partidasVec[pos].comprarVocales(voc,turn); 
                                                                         bzero(buffer, sizeof(buffer));              
                                                                         sprintf(identificador,"+Ok. El refran actual : %s", partidasVec[pos].getRefranOculto().c_str());

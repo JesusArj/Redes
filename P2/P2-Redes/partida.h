@@ -2,6 +2,7 @@
 #define PARTIDA
 
 #include <string>
+#include <list>
 #include "frases.h"
 
 using namespace std;
@@ -14,6 +15,7 @@ class partida {
         int sockets[2]; //sd de los jugadores;
         string jugadores[2]; //puede ser el login para en el envio poner Turno de <login> en vez de 1 o 2.
         int puntos[2];
+        list<char> letrasDichas;
 
     public:
         partida(int sd1, int sd2, string j1, string j2);
@@ -24,6 +26,7 @@ class partida {
         int* getSockets();
         string* getJugadores();
         int* getPuntos();
+        list<char> getLetras();
 
         void pickRefran(); 
         void ocultarRefran();
@@ -31,6 +34,8 @@ class partida {
         bool comprobarVocales(char vocal); 
         bool resolverRefran(string refranIntento);
         bool rellenarConsonantes(char consonante, int puntos );
+        bool letraDicha(char c);
+        void decirLetra(char c);
 
         void setTurno(int i);
         void setRefranResuelto(string refran);

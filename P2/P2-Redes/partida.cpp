@@ -86,6 +86,23 @@ bool partida::rellenarConsonantes(char consonante, int sd){
         return false;
 }
 
+bool partida::letraDicha(char l){
+    bool found = false;
+    for(char c : getLetras()){
+        if (l == c)
+            found = true; 
+    }
+    return found;
+}
+
+void partida::decirLetra(char c){
+    letrasDichas.push_back(c);
+}
+
+list<char> partida::getLetras(){
+    return letrasDichas;
+}
+
 int partida::getTurno(){
     return turno;
 }
