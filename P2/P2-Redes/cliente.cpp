@@ -23,7 +23,7 @@ int main (int argc, char* argv[])
 	int sd;
 	char* ip = argv[1];
 	struct sockaddr_in sockname;
-	char bufferIn[250];
+	char bufferIn[350];
 	char bufferOut[350];
 	socklen_t len_sockname;
 	fd_set readfds, auxfds;
@@ -97,14 +97,11 @@ int main (int argc, char* argv[])
 
 			cout<<"\n" << mensajeRecibido << endl;
 
-            if(strcmp(bufferIn,"Demasiados clientes conectados\n") == 0)
+            if(strcmp(bufferIn,"-Err. Demasiados clientes conectados\n") == 0)
                 fin =1;
             
-            if(strcmp(bufferIn,"Desconexión servidor\n") == 0)
+            if(strcmp(bufferIn,"-Err. Desconexión servidor\n") == 0)
                 fin =1;
-
-            if(mensajeRecibido.find("Partida finalizada") != std::string::npos)
-				fin = 1;
         }
         else
         {

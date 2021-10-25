@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include "usuario.h"
 #include "partida.h"
-#define MSG_SIZE 250
+#define MSG_SIZE 350
 #define MAX_CLIENTS 30
 #define MAX_GAMES 10
 
@@ -28,7 +28,7 @@ using namespace std;
 void manejador(int signum);
 int buscarPosicionPartida(int sd, vector<partida> v);
 int buscarPosicionUsuario(int sd, vector<usuario> v);
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> &p, vector<usuario> &u);
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida> &p, vector<usuario> &u, list<usuario> &lu);
 
 int main ( )
 {
@@ -160,7 +160,7 @@ int main ( )
                                 else
                                 {
                                     bzero(buffer,sizeof(buffer));
-                                    strcpy(buffer,"Demasiados clientes conectados\n");
+                                    strcpy(buffer,"-Err. Demasiados clientes conectados\n");
                                     send(new_sd,buffer,sizeof(buffer),0);
                                     close(new_sd);
                                 }
@@ -182,7 +182,7 @@ int main ( )
                                 for (j = 0; j < numClientes; j++)
                                 {
                                     bzero(buffer, sizeof(buffer));
-                                    strcpy(buffer,"Desconexión servidor\n"); 
+                                    strcpy(buffer,"-Err. Desconexión servidor\n"); 
                                     send(arrayClientes[j],buffer , sizeof(buffer),0);
                                     usuariosVec.clear();
                                     partidasVec.clear();
@@ -353,13 +353,13 @@ int main ( )
                                                 strcpy(buffer,identificador);
                                                 send(i,buffer,sizeof(buffer),0);
                                             }
-                                        }
-                                        else if ((*it).getSd() == i && (*it).getEstado()!=2)
-                                        {
-                                            bzero(buffer, sizeof(buffer)); 
-                                            sprintf(identificador,"-Err Accion no permitida");
-                                            strcpy(buffer,identificador);
-                                            send(i,buffer,sizeof(buffer),0); 
+                                            else 
+                                            {
+                                                bzero(buffer, sizeof(buffer)); 
+                                                sprintf(identificador,"-Err Accion no permitida");
+                                                strcpy(buffer,identificador);
+                                                send(i,buffer,sizeof(buffer),0); 
+                                            }
                                         }
                                     }
                                 
@@ -710,7 +710,7 @@ int main ( )
                                 }
                                 else if(mensajeRec.find("SALIR") == 0)
                                 {
-                                    salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec);
+                                    salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes,partidasVec, usuariosVec, enEspera);
                                 }
                                 
                                 else
@@ -727,7 +727,7 @@ int main ( )
                             {
                                 printf("El socket %d, ha introducido ctrl+c\n", i);
                                 //Eliminar ese socket
-                                salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes, partidasVec, usuariosVec);
+                                salirCliente(i,&readfds,&numClientes,&numGames, arrayClientes, partidasVec, usuariosVec, enEspera);
                             }
                         }
                     }
@@ -754,10 +754,7 @@ int main ( )
                 usuariosVec[pos1].setEstado(4);
                 usuariosVec[pos2].setEstado(4); 
                 partida nuevaPartida(sd1,sd2,user1,user2); 
-                cout<< nuevaPartida.getSockets()[0]<<endl; 
-                cout<< nuevaPartida.getSockets()[1]<<endl;
                 nuevaPartida.pickRefran(); 
-                cout<< nuevaPartida.getRefranResuelto(); 
                 nuevaPartida.ocultarRefran(); 
                 nuevaPartida.setTurno(sd1);
                 partidasVec.push_back(nuevaPartida); 
@@ -782,9 +779,9 @@ int main ( )
 	
 }
 
-void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida>& p, vector<usuario>& u){
+void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGames, int arrayClientes[], vector<partida>& p, vector<usuario>& u, list<usuario>&lu){
   
-    char buffer[250];
+    char buffer[350];
     int j;
     
     close(socket);
@@ -799,7 +796,7 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
     
     (*numClientes)--;
     bzero(buffer,sizeof(buffer));
-    sprintf(buffer,"Desconexión de su rival, escriba INICIAR-PARTIDA para buscar nueva partida.");
+    sprintf(buffer,"+Ok. Ha salido el otro jugador. Finaliza la partida.");
     int posiUsuario = buscarPosicionUsuario(socket, u);
     if(u[posiUsuario].getEstado()>3)
     {
@@ -822,6 +819,18 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
         p.erase(p.begin() + pos); 
         (*numGames)--; 
     } 
+    //eliminamos al usuario del vector de espera
+    else if (u[posiUsuario].getEstado()==3)
+    {
+        int count = 0; 
+        for(auto it= lu.begin(); it!=lu.end(); it++)
+        {
+            if((*it).getSd() == socket)
+            {
+                lu.erase(it); 
+            } 
+        }
+    }
 
     //quitamos al usuario del vector de usuarios
     int posUsuario = buscarPosicionUsuario(socket, u);
@@ -830,10 +839,10 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
 
 
 void manejador (int signum){
-    printf("\nSe ha recibido la señal sigint\n");
-    signal(SIGINT,manejador);
-    
+    printf("\nPara cerrar el servidor introduzca SALIR\n");
+    signal(SIGINT,manejador); 
     //Implementar lo que se desee realizar cuando ocurra la excepción de ctrl+c en el servidor
+
 }
 
 
