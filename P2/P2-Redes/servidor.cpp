@@ -822,12 +822,12 @@ void salirCliente(int socket, fd_set * readfds, int * numClientes, int * numGame
     //eliminamos al usuario del vector de espera
     else if (u[posiUsuario].getEstado()==3)
     {
-        int count = 0; 
         for(auto it= lu.begin(); it!=lu.end(); it++)
         {
             if((*it).getSd() == socket)
             {
-                lu.erase(it); 
+               lu.erase(it);
+               break;  
             } 
         }
     }
